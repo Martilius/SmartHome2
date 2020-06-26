@@ -1,4 +1,4 @@
-package com.martilius.smarthome.ui.home
+package com.martilius.smarthome.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.martilius.smarthome.R
+import com.martilius.smarthome.ui.viewmodels.HomeViewModel
 
 class HomeFragment : Fragment() {
 

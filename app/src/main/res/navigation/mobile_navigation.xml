@@ -3,23 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.martilius.smarthome.ui.home.HomeFragment"
+        android:name="com.martilius.smarthome.ui.fragments.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.martilius.smarthome.ui.gallery.GalleryFragment"
+        android:name="com.martilius.smarthome.ui.fragments.GalleryFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.martilius.smarthome.ui.slideshow.SlideshowFragment"
+        android:name="com.martilius.smarthome.ui.fragments.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.martilius.smarthome.ui.fragments.LoginFragment"
+        android:label="login_fragment"
+        tools:layout="@layout/login_fragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_nav_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
 </navigation>
