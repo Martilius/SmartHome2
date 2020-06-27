@@ -1,18 +1,10 @@
 package com.martilius.smarthome
 
 import android.annotation.SuppressLint
-import android.app.Application
-import android.app.StatusBarManager
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.service.notification.StatusBarNotification
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.annotation.RequiresApi
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -26,9 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.navOptions
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,6 +29,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        toolbar.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.action_settings->{
+                    findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
+                    true
+                }
+                else -> false
+            }
+        }
+
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
@@ -56,27 +56,6 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
         navController.setGraph(R.navigation.mobile_navigation)
         visibilityNavElements(navController,navView)
-        navView.setNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.nav_home->{
-                    //val b = navController.popBackStack(R.id.nav_home,false)
-                    //if(!b){
-                        navController.navigate(R.id.nav_home)
-                    //}
-                    true
-                }
-                R.id.nav_gallery->{
-                    //navController.
-                    val c = navController.popBackStack(R.id.nav_gallery,false)
-                    if(!c){
-
-                        navController.navigate(R.id.nav_gallery)
-                    }
-                    true
-                }
-                else -> false
-            }
-        }
     }
 
 
@@ -84,28 +63,24 @@ class MainActivity : AppCompatActivity() {
     fun visibilityNavElements(navController: NavController, navView: NavigationView) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.loginFragment-> {
-                    //navView?.visibility = View.GONE
+                R.id.nav_login-> {
                     supportActionBar?.hide()
                     fab.visibility = View.GONE
                 }
                 R.id.nav_home -> {
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
-                    changePrimaryColor(R.color.brown)
-                    //toolbar.setBackgroundColor(resources.getColor(R.color.brown))
-                    //menuHeader.setBackgroundColor(resources.getColor(R.color.brown))
-                    //window.statusBarColor = getColor(R.color.brown)
+                    changePrimaryColor(R.color.brown, R.color.brownDarker)
                 }
                 R.id.nav_gallery->{
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
-                    changePrimaryColor(R.color.ecru)
+                    changePrimaryColor(R.color.darkEcru, R.color.darkerEcru)
                 }
                 R.id.nav_slideshow->{
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
-                    changePrimaryColor(R.color.green)
+                    changePrimaryColor(R.color.grey, R.color.darkGrey)
                 }
 
                 else -> {
@@ -116,12 +91,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun changePrimaryColor(colorId: Int){
+
+    fun changePrimaryColor(colorId: Int, colorAccentId: Int){
         toolbar.setBackgroundColor(ContextCompat.getColor(applicationContext,colorId))
-        menuHeader.setBackgroundColor(ContextCompat.getColor(applicationContext,colorId))
+        //menuHeader.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.bla))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.statusBarColor = ContextCompat.getColor(applicationContext, colorId)
+            window.statusBarColor = ContextCompat.getColor(applicationContext, colorAccentId)
         }
+        //nav_view.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.navViewBottom))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
