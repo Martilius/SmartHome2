@@ -18,6 +18,7 @@ import com.github.dhaval2404.colorpicker.ColorPickerView
 import com.google.android.material.slider.Slider
 import com.google.android.material.transition.MaterialFadeThrough
 import com.martilius.smarthome.R
+import com.martilius.smarthome.Tasks.ColorPickDialog
 import com.martilius.smarthome.ui.viewmodels.PawelsRoomViewModel
 import kotlinx.android.synthetic.main.pawels_room_fragment.*
 import kotlinx.android.synthetic.main.pawels_room_fragment.view.*
@@ -61,7 +62,9 @@ class PawelsRoomFragment : Fragment() {
 //                colorFragment.arguments = bundle
 //                childFragmentManager.beginTransaction().add(colorFragment, "colorFragment").commit()
                 if (sharedPreferences != null) {
-                    showDialog(context, sharedPreferences,"PawelsRoomCustomColor")
+                    //val colorpickdial = ColorPickDialog()
+                    ColorPickDialog().showDialog(context,sharedPreferences,"PawelsRoomCustomColor",additionalLightCustomButton)
+                    //showDialog(context, sharedPreferences,"PawelsRoomCustomColor")
                 }
                 //ColorPickFragment().show(childFragmentManager,"b")
 
