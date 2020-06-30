@@ -71,6 +71,8 @@ class MainActivity : AppCompatActivity() {
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
                     changePrimaryColor(R.color.brown, R.color.brownDarker)
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = true
+                    //toolbar.menu.getItem(R.id.action_settings)
                 }
                 R.id.nav_gallery->{
                     supportActionBar?.show()
@@ -86,6 +88,7 @@ class MainActivity : AppCompatActivity() {
                 else -> {
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = false
                 }
             }
         }

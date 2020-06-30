@@ -15,7 +15,7 @@
         android:id="@+id/nav_gallery"
         android:name="com.martilius.smarthome.ui.fragments.SaloonFragment"
         android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_saloon" >
+        tools:layout="@layout/saloon_fragment" >
         <action
             android:id="@+id/action_nav_gallery_pop"
             app:destination="@+id/nav_home"

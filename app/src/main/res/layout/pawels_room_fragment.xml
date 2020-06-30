@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/srlPawelsRoom"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/pawelsRoomBackground"
     tools:context=".ui.fragments.PawelsRoomFragment">
 
@@ -56,7 +61,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/btHeadLightCardViewExpander"
+                android:id="@+id/btHeadLightSwitch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="20dp"
@@ -72,6 +77,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvAdditionalLight"
         style="@style/Widget.MaterialComponents.CardView"
+        android:backgroundTint="@color/lightestBrown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -89,20 +95,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/lighterBrown"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent">
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/ivAdditionalLightCardView"
                     android:layout_width="100dp"
                     android:layout_height="40dp"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
+                    android:background="@color/white"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ledstriptest"
-                    android:background="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -110,7 +119,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:text="Additional Light"
                     android:textColor="@color/white"
                     android:textSize="20sp"
@@ -118,18 +127,27 @@
                     app:layout_constraintStart_toEndOf="@id/ivAdditionalLightCardView"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ToggleButton
-                    android:id="@+id/btAdditionalLightCardViewExpander"
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/btAdditionalLightPawelsRoomSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ToggleButton
+                    android:id="@+id/btAdditionalLightCardViewExpander"
+                    android:layout_width="35dp"
+                    android:layout_height="25dp"
+
                     android:background="@drawable/toggle_button"
                     android:checked="false"
                     android:textOff=""
                     android:textOn=""
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
 
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -139,14 +157,15 @@
                 android:layout_height="wrap_content"
                 android:background="@color/lightestBrown"
                 android:visibility="gone"
+                android:paddingBottom="10dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/headerAdditionalLight"
-                tools:visibility="visible"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp">
+
+                tools:visibility="visible">
 
                 <TextView
+                    android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="White"
@@ -163,6 +182,7 @@
                     app:layout_constraintTop_toBottomOf="@id/additionalLightRedButton" />
 
                 <TextView
+                    android:id="@+id/textView4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Green"
@@ -179,6 +199,7 @@
                     app:layout_constraintTop_toBottomOf="@id/additionalLightBlueButton" />
 
                 <TextView
+                    android:id="@+id/textView5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Custom"
@@ -190,13 +211,16 @@
                     android:id="@+id/additionalLightWhiteButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginRight="10dp"
                     android:backgroundTint="#FFFFFF"
                     android:clickable="true"
                     android:focusable="true"
                     app:borderWidth="0dp"
                     app:fabSize="mini"
-                    app:layout_constraintEnd_toStartOf="@+id/additionalLightRedButton"
+                    app:layout_constraintEnd_toStartOf="@+id/additionalLightCustomButton"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -205,28 +229,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#FF0000"
-                    android:clickable="true"
-                    android:focusable="true"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="10dp"
                     app:borderWidth="0dp"
                     app:fabSize="mini"
-                    app:layout_constraintEnd_toStartOf="@+id/additionalLightGreenButton"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/additionalLightWhiteButton"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintEnd_toStartOf="@id/additionalLightGreenButton"
+                    app:layout_constraintStart_toStartOf="@+id/additionalLightWhiteButton"
+                    app:layout_constraintTop_toTopOf="@+id/textView3" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/additionalLightGreenButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#00FF00"
+                    android:layout_marginRight="10dp"
                     android:clickable="true"
                     android:focusable="true"
                     app:borderWidth="0dp"
                     app:fabSize="mini"
-                    app:layout_constraintEnd_toStartOf="@+id/additionalLightBlueButton"
-                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintEnd_toStartOf="@id/additionalLightBlueButton"
                     app:layout_constraintStart_toEndOf="@+id/additionalLightRedButton"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@+id/additionalLightRedButton" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/additionalLightBlueButton"
@@ -237,37 +260,39 @@
                     android:focusable="true"
                     app:borderWidth="0dp"
                     app:fabSize="mini"
-                    app:layout_constraintEnd_toStartOf="@+id/additionalLightCustomButton"
-                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintEnd_toEndOf="@+id/additionalLightCustomButton"
                     app:layout_constraintStart_toEndOf="@+id/additionalLightGreenButton"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@+id/additionalLightRedButton" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/additionalLightCustomButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="#000000"
                     android:clickable="true"
                     android:focusable="true"
                     app:borderWidth="0dp"
                     app:fabSize="mini"
-                    app:layout_constraintEnd_toStartOf="@+id/btPickCustomColorPawelsRoom"
+                    app:layout_constraintBottom_toBottomOf="@id/additionalLightWhiteButton"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/additionalLightBlueButton"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintStart_toEndOf="@+id/additionalLightWhiteButton"
+                    app:layout_constraintTop_toTopOf="@id/additionalLightWhiteButton" />
+
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btPickCustomColorPawelsRoom"
-                    android:text="Pick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="Pick"
+
+                    app:layout_constraintBottom_toTopOf="@+id/textView5"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintTop_toTopOf="@id/additionalLightCustomButton"
-                    app:layout_constraintBottom_toBottomOf="@id/additionalLightCustomButton"
-                    app:layout_constraintStart_toEndOf="@+id/additionalLightCustomButton" />
+                    app:layout_constraintStart_toEndOf="@+id/additionalLightCustomButton"
+                    app:layout_constraintTop_toTopOf="@+id/additionalLightCustomButton" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
