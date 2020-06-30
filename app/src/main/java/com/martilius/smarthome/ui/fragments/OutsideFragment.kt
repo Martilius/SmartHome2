@@ -11,20 +11,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.transition.MaterialFadeThrough
 import com.martilius.smarthome.R
 import com.martilius.smarthome.Tasks.ColorPickDialog
+import com.martilius.smarthome.ui.viewmodels.LoginViewModel
 import com.martilius.smarthome.ui.viewmodels.OutsideViewModel
+import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.outside_fragment.view.*
 import kotlinx.android.synthetic.main.pawels_room_fragment.view.*
+import javax.inject.Inject
 
-class OutsideFragment : Fragment() {
+class OutsideFragment : DaggerFragment() {
 
-    companion object {
-        fun newInstance() = OutsideFragment()
-    }
-
-    private lateinit var viewModel: OutsideViewModel
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+    private val viewModel by viewModels<OutsideViewModel> { factory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,7 +79,7 @@ class OutsideFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(OutsideViewModel::class.java)
+        //viewModel = ViewModelProviders.of(this).get(OutsideViewModel::class.java)
         // TODO: Use the ViewModel
     }
 

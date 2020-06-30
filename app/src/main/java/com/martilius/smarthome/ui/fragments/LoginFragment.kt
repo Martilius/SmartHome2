@@ -7,19 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.google.android.material.transition.MaterialFadeThrough
 import com.martilius.smarthome.R
 import com.martilius.smarthome.ui.viewmodels.LoginViewModel
+import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.login_fragment.view.*
+import javax.inject.Inject
 
-class LoginFragment : Fragment() {
+class LoginFragment : DaggerFragment() {
 
-    companion object {
-        fun newInstance() = LoginFragment()
-    }
-
-    private lateinit var viewModel: LoginViewModel
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+    private val viewModel by viewModels<LoginViewModel> { factory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +44,6 @@ class LoginFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
         // TODO: Use the ViewModel
     }
 

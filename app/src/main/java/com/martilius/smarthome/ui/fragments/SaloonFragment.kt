@@ -9,21 +9,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.transition.MaterialFadeThrough
 import com.martilius.smarthome.R
 import com.martilius.smarthome.adapters.SaloonAdapter
 import com.martilius.smarthome.models.compoundList
 import com.martilius.smarthome.models.simpleList
+import com.martilius.smarthome.ui.viewmodels.LoginViewModel
 import com.martilius.smarthome.ui.viewmodels.SaloonViewModel
+import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.saloon_fragment.view.*
+import javax.inject.Inject
 
-class SaloonFragment : Fragment() {
+class SaloonFragment : DaggerFragment() {
 
-    companion object {
-        fun newInstance() = SaloonFragment()
-    }
-
-    private lateinit var viewModel: SaloonViewModel
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+    private val viewModel by viewModels<SaloonViewModel> { factory }
 
     private val saloonAdapter by lazy {
         SaloonAdapter{
@@ -60,7 +63,7 @@ class SaloonFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(SaloonViewModel::class.java)
+       // viewModel = ViewModelProviders.of(this).get(SaloonViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
