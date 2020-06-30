@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
+                R.id.nav_pawels_room, R.id.nav_saloon, R.id.nav_outside), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         navController.setGraph(R.navigation.mobile_navigation)
@@ -67,22 +67,24 @@ class MainActivity : AppCompatActivity() {
                     supportActionBar?.hide()
                     fab.visibility = View.GONE
                 }
-                R.id.nav_home -> {
+                R.id.nav_pawels_room -> {
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
                     changePrimaryColor(R.color.brown, R.color.brownDarker)
                     toolbar.menu.findItem(R.id.action_settings).isVisible = true
                     //toolbar.menu.getItem(R.id.action_settings)
                 }
-                R.id.nav_gallery->{
+                R.id.nav_saloon->{
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
                     changePrimaryColor(R.color.darkEcru, R.color.darkerEcru)
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = true
                 }
-                R.id.nav_slideshow->{
+                R.id.nav_outside->{
                     supportActionBar?.show()
                     fab.visibility = View.VISIBLE
                     changePrimaryColor(R.color.grey, R.color.darkGrey)
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = true
                 }
 
                 else -> {

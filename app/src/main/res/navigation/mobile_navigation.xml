@@ -6,28 +6,28 @@
     app:startDestination="@id/nav_login">
 
     <fragment
-        android:id="@+id/nav_home"
+        android:id="@+id/nav_pawels_room"
         android:name="com.martilius.smarthome.ui.fragments.PawelsRoomFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/pawels_room_fragment" />
 
     <fragment
-        android:id="@+id/nav_gallery"
+        android:id="@+id/nav_saloon"
         android:name="com.martilius.smarthome.ui.fragments.SaloonFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/saloon_fragment" >
         <action
             android:id="@+id/action_nav_gallery_pop"
-            app:destination="@+id/nav_home"
-            app:popUpTo="@id/nav_home"
+            app:destination="@+id/nav_pawels_room"
+            app:popUpTo="@id/nav_pawels_room"
             app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_slideshow"
+        android:id="@+id/nav_outside"
         android:name="com.martilius.smarthome.ui.fragments.OutsideFragment"
         android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_outside" />
+        tools:layout="@layout/outside_fragment" />
     <fragment
         android:id="@+id/nav_login"
         android:name="com.martilius.smarthome.ui.fragments.LoginFragment"
@@ -35,7 +35,7 @@
         tools:layout="@layout/login_fragment" >
         <action
             android:id="@+id/action_loginFragment_to_nav_home"
-            app:destination="@id/nav_home"
+            app:destination="@id/nav_pawels_room"
             app:popUpTo="@id/nav_login"
             app:popUpToInclusive="true"/>
     </fragment>

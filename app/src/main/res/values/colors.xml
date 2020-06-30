@@ -7,6 +7,8 @@
     <color name="lighterBrown">#624743</color>
     <color name="lightestBrown">#9a726c</color>
     <color name="brownDarker">#241a19</color>
+    <color name="lightGrey">#525252</color>
+    <color name="lightestGrey">#8d8d8d</color>
     <color name="grey">#212121</color>
     <color name="darkGrey">#141414</color>
     <color name="lightColor">#dedede</color>

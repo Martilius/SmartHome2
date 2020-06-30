@@ -32,7 +32,7 @@ public class ColorPickDialog {
         val tv = dialog.findViewById(R.id.tvVal) as TextView
         val tvValue = dialog.findViewById(R.id.tvColorValue) as TextView
         val tvBrightness = dialog.findViewById(R.id.tvColorBrightness) as TextView
-        var color = sharedPreferences?.getString(sharedprefsID,"#FFFFFF").toString().toInt()
+        var color = sharedPreferences?.getString(sharedprefsID,Color.WHITE.toString()).toString().toInt()
         colorPicker.setBackgroundColor(color)
         colorPicker.setColor(color)
         Color.colorToHSV(color,hsv)
@@ -45,13 +45,13 @@ public class ColorPickDialog {
 
         okBtn.setOnClickListener {
             fab.backgroundTintList =
-                ColorStateList.valueOf(sharedPreferences.getString(sharedprefsID,"#FFFFFF").toString().toInt())
+                ColorStateList.valueOf(sharedPreferences.getString(sharedprefsID,Color.WHITE.toString()).toString().toInt())
             dialog.dismiss()
         }
 
         cancelBtn.setOnClickListener{
             fab.backgroundTintList =
-                ColorStateList.valueOf(sharedPreferences.getString(sharedprefsID,"#FFFFFF").toString().toInt())
+                ColorStateList.valueOf(sharedPreferences.getString(sharedprefsID,Color.WHITE.toString()).toString().toInt())
             dialog.dismiss()
         }
 

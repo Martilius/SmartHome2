@@ -51,6 +51,10 @@ class SaloonFragment : Fragment() {
                     }
                 }
             }
+
+            srlSaloon.setOnRefreshListener {
+                srlSaloon.isRefreshing = false
+            }
         }
     }
 
