@@ -2,68 +2,66 @@ package com.martilius.smarthome.ui.viewmodels
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.provider.ContactsContract
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.martilius.smarthome.R
 import kotlinx.coroutines.*
-import java.lang.Exception
-import java.net.DatagramPacket
-import java.net.DatagramSocket
-import java.net.Inet4Address
-import java.net.InetSocketAddress
-import java.nio.Buffer
+import java.net.*
 import javax.inject.Inject
+import kotlin.Exception
 
 class PawelsRoomViewModel @Inject constructor(private val sharedPreferences: SharedPreferences, private val context:Context):ViewModel() {
 
     val respond = MutableLiveData<String>()
+    val hlRespond = MutableLiveData<String>()
+    val alRespond = MutableLiveData<String>()
+    val initPawla = MutableLiveData<String>()
+    val refresh = MutableLiveData<String>()
 
     init {
-
+        SendWithResult(context.getString(R.string.pawla_init), initPawla)
     }
-    fun Send(message:String){
+
+    fun refresh(){
+        SendWithResult(context.getString(R.string.pawla_init), refresh)
+    }
+
+    fun SendWithResult(message: String, mutableLiveData: MutableLiveData<String>) {
         val ip = "192.168.2.173"
         val buffer = ByteArray(2048)
         val port = 8080
-        var datagramSocket = DatagramSocket()
+        var datagramSocket = DatagramSocket(null)
         viewModelScope.launch(Dispatchers.Default) {
-            try{
+            try {
                 val local = Inet4Address.getByName(context.getString(R.string.ip_address))
-                if(datagramSocket.isBound){
+                if (!datagramSocket.isBound) {
                     datagramSocket = DatagramSocket(null)
                     datagramSocket.reuseAddress = true
                     datagramSocket.bind(InetSocketAddress(port))
-                }else{
+                } else {
                     datagramSocket.bind(InetSocketAddress(port))
                 }
 
-                val datagramPacketSend = DatagramPacket(message.toByteArray(),message.length,local,port)
+                val datagramPacketSend =
+                    DatagramPacket(message.toByteArray(), message.length, local, port)
                 datagramSocket.send(datagramPacketSend)
-                val datagramPacketReceived = DatagramPacket(buffer,buffer.size)
-                datagramSocket.soTimeout = 2000
+                val datagramPacketReceived = DatagramPacket(buffer, buffer.size)
+                datagramSocket.soTimeout = 100
                 datagramSocket.receive(datagramPacketReceived)
-                val bla = String(buffer)
-                withContext(Dispatchers.Main){
-                    respond.postValue(bla)
+                val received = String(buffer,0,datagramPacketReceived.length)
+                withContext(Dispatchers.Main) {
+                    mutableLiveData.postValue(received)
                 }
-
                 datagramSocket.close()
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 datagramSocket.close()
-                withContext(Dispatchers.Main){
-                    respond.postValue(e.toString())
+                withContext(Dispatchers.Main) {
+                    //mutableLiveData.postValue(e.toString())
                 }
-
-
-
-
+                SendWithResult(message, mutableLiveData)
             }
-
         }
-        //respond.postValue(String(buffer))
-    }
 
+    }
 }

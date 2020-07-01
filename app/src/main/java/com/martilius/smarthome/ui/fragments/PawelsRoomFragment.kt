@@ -15,6 +15,9 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +26,7 @@ import com.google.android.material.slider.Slider
 import com.google.android.material.transition.MaterialFadeThrough
 import com.martilius.smarthome.R
 import com.martilius.smarthome.Tasks.ColorPickDialog
+import com.martilius.smarthome.Tasks.UdpServices
 import com.martilius.smarthome.models.Cupboard
 import com.martilius.smarthome.ui.viewmodels.LoginViewModel
 import com.martilius.smarthome.ui.viewmodels.PawelsRoomViewModel
@@ -47,46 +51,77 @@ class PawelsRoomFragment : DaggerFragment() {
             enterTransition = MaterialFadeThrough().setDuration(500L)
             exitTransition = MaterialFadeThrough().setDuration(500L)
             val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE)
-            btHeadLightSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
-                if(isChecked){
-                    ivHeadLightCardView.setImageResource(R.drawable.lampv2on)
-                    //TransitionManager.beginDelayedTransition(cvHeadLight, AutoTransition())
-                }else{
-                    ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
-                    //TransitionManager.beginDelayedTransition(cvHeadLight, AutoTransition())
-                }
-            }
-            additionalLightCustomButton.backgroundTintList =ColorStateList.valueOf(sharedPreferences?.getString("alpawla",Color.WHITE.toString()).toString().toInt())
+            val sendingHlID = "hlpawla"
+            val sendingAlIDN = "alpawla"
+
+            additionalLightCustomButton.backgroundTintList =ColorStateList.valueOf(sharedPreferences?.getString(sendingAlIDN,Color.WHITE.toString()).toString().toInt())
 
             headerAdditionalLight.setOnClickListener{
                 btAdditionalLightCardViewExpander.isChecked = btAdditionalLightCardViewExpander.isChecked != true
             }
-            val colorpickdial = ColorPickDialog()
 
             btPickCustomColorPawelsRoom.setOnClickListener {
 
                 if (sharedPreferences != null) {
-                    ColorPickDialog().showDialog(context,sharedPreferences,"alpawla",additionalLightCustomButton)
+                    ColorPickDialog().showDialog(context,sharedPreferences,sendingAlIDN,additionalLightCustomButton, ivAdditionalLightCardView)
                 }
 
             }
 
             srlPawelsRoom.setOnRefreshListener {
-                viewModel.Send("startup;alpawla")
-                srlPawelsRoom.isRefreshing = false
+                viewModel.refresh()
             }
             with(viewModel){
-                respond.observe(viewLifecycleOwner, Observer {
-                    Toast.makeText(context,it,Toast.LENGTH_LONG).show()
+                refresh.observe(viewLifecycleOwner, Observer {
+                    val parts: List<String> = it.split(";")
+                    btHeadLightSwitch.isChecked = parts[1].equals("on")
+                    btAdditionalLightPawelsRoomSwitch.isChecked = parts[6].equals("on")
+                    srlPawelsRoom.isRefreshing = false
+                })
+                initPawla.observe(viewLifecycleOwner, Observer {
+                    val parts: List<String> = it.split(";")
+                    btHeadLightSwitch.isChecked = parts[1].equals("on")
+                    btAdditionalLightPawelsRoomSwitch.isChecked = parts[6].equals("on")
+                    ivAdditionalLightCardView.setBackgroundColor(Color.rgb(parts[3].toInt(),parts[4].toInt(),parts[5].toInt()))
                 })
             }
 
+            btHeadLightSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
+                if(isChecked){
+                    ivHeadLightCardView.setImageResource(R.drawable.lampv2on)
+                    if(btHeadLightSwitch.isPressed){
+                        UdpServices().sendWithoutRespond("turn;${sendingHlID};on",context)
+                    }
+                }else if(!isChecked && btHeadLightSwitch.isPressed){
+                    ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
+                    if(btHeadLightSwitch.isPressed){
+                        UdpServices().sendWithoutRespond("turn;${sendingHlID};off",context)
+                    }
+                }
+            }
 
-            additionalLightWhiteButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.WHITE) }
-            additionalLightRedButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.RED) }
-            additionalLightGreenButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.GREEN) }
-            additionalLightBlueButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.BLUE) }
-            additionalLightCustomButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(sharedPreferences?.getString("alpawla",Color.WHITE.toString()).toString().toInt()) }
+            btAdditionalLightPawelsRoomSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
+                if(isChecked && btAdditionalLightPawelsRoomSwitch.isPressed){
+                        UdpServices().sendWithoutRespond("turn;${sendingAlIDN};on",context)
+                }else if(!isChecked && btAdditionalLightPawelsRoomSwitch.isPressed){
+                    UdpServices().sendWithoutRespond("turn;${sendingAlIDN};off",context)
+                }
+            }
+
+
+            additionalLightWhiteButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.WHITE)
+                UdpServices().sendWithoutRespond("set;${sendingAlIDN};255;255;255",context)
+            }
+            additionalLightRedButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.RED)
+                UdpServices().sendWithoutRespond("set;${sendingAlIDN};255;0;0",context)}
+            additionalLightGreenButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.GREEN)
+                UdpServices().sendWithoutRespond("set;${sendingAlIDN};0;255;0",context)}
+            additionalLightBlueButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.BLUE)
+                UdpServices().sendWithoutRespond("set;${sendingAlIDN};0;0;255",context)}
+            additionalLightCustomButton.setOnClickListener {
+                val color = sharedPreferences?.getString(sendingAlIDN,Color.WHITE.toString()).toString().toInt()
+                ivAdditionalLightCardView.setBackgroundColor(sharedPreferences?.getString(sendingAlIDN,Color.WHITE.toString()).toString().toInt())
+                UdpServices().sendWithoutRespond("set;${sendingAlIDN};${color.red};${color.green};${color.blue}",context)}
 
             btAdditionalLightCardViewExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
                 if(isChecked){

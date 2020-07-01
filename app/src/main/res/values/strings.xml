@@ -10,4 +10,7 @@
     <string name="menu_home">"Pawel's Room"</string>
     <string name="menu_gallery">Saloon</string>
     <string name="menu_slideshow">Outside</string>
+    <string name="hl_pawla_startup">startup;hlpawla</string>
+    <string name="al_pawla_startup">startup;alpawla</string>
+    <string name="pawla_init">upd;pawlaRoom</string>
 </resources>

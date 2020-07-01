@@ -46,7 +46,7 @@ class OutsideFragment : DaggerFragment() {
             btPickCustomColorPawelsRoomAltana.setOnClickListener {
 
                 if (sharedPreferences != null) {
-                    ColorPickDialog().showDialog(context,sharedPreferences,"alaltana",additionalLightCustomButtonAltana)
+                    ColorPickDialog().showDialog(context,sharedPreferences,"alaltana",additionalLightCustomButtonAltana, ivAdditionalLightCardViewAltana)
                 }
 
             }
