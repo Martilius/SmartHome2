@@ -1,7 +1,10 @@
 package com.martilius.smarthome
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
+import android.view.View
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -13,8 +16,12 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import dagger.android.support.DaggerAppCompatActivity
+import kotlinx.android.synthetic.main.app_bar_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : DaggerAppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
 
@@ -23,6 +30,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+        toolbar.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.action_settings->{
+                    findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
+                    true
+                }
+                else -> false
+            }
+        }
+
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
@@ -35,9 +52,59 @@ class MainActivity : AppCompatActivity() {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
+                R.id.nav_pawels_room, R.id.nav_saloon, R.id.nav_outside), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        navController.setGraph(R.navigation.mobile_navigation)
+        visibilityNavElements(navController,navView)
+    }
+
+
+    @SuppressLint("ResourceAsColor")
+    fun visibilityNavElements(navController: NavController, navView: NavigationView) {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.nav_login-> {
+                    supportActionBar?.hide()
+                    fab.visibility = View.GONE
+                }
+                R.id.nav_pawels_room -> {
+                    supportActionBar?.show()
+                    fab.visibility = View.VISIBLE
+                    changePrimaryColor(R.color.brown, R.color.brownDarker)
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = true
+                    //toolbar.menu.getItem(R.id.action_settings)
+                }
+                R.id.nav_saloon->{
+                    supportActionBar?.show()
+                    fab.visibility = View.VISIBLE
+                    changePrimaryColor(R.color.darkEcru, R.color.darkerEcru)
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = true
+                }
+                R.id.nav_outside->{
+                    supportActionBar?.show()
+                    fab.visibility = View.VISIBLE
+                    changePrimaryColor(R.color.grey, R.color.darkGrey)
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = true
+                }
+
+                else -> {
+                    supportActionBar?.show()
+                    fab.visibility = View.VISIBLE
+                    toolbar.menu.findItem(R.id.action_settings).isVisible = false
+                }
+            }
+        }
+    }
+
+
+    fun changePrimaryColor(colorId: Int, colorAccentId: Int){
+        toolbar.setBackgroundColor(ContextCompat.getColor(applicationContext,colorId))
+        //menuHeader.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.bla))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.statusBarColor = ContextCompat.getColor(applicationContext, colorAccentId)
+        }
+        //nav_view.setBackgroundColor(ContextCompat.getColor(applicationContext,R.color.navViewBottom))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#424242</color>
+    <color name="colorPrimaryDark">#212121</color>
+    <color name="colorAccent">#616161</color>
+    <color name="brown">#332523</color>
+    <color name="lighterBrown">#624743</color>
+    <color name="lightestBrown">#9a726c</color>
+    <color name="brownDarker">#241a19</color>
+    <color name="lightGrey">#525252</color>
+    <color name="lightestGrey">#8d8d8d</color>
+    <color name="grey">#212121</color>
+    <color name="darkGrey">#141414</color>
+    <color name="lightColor">#dedede</color>
+    <color name="darkEcru">#263238</color>
+    <color name="darkerEcru">#1c2429</color>
+    <color name="ecru">#C2B280</color>
+    <color name="pawelsRoomBackground">#FFFBE6</color>
+    <color name ="white">#FFFFFF</color>
+    <color name = "darkMelon">#332523</color>
+    <color name="brightMelon">#e5a79c</color>
+    <color name="bla">#192a56</color>
+    <color name="navViewBottom">#fffff0</color>
 </resources>
