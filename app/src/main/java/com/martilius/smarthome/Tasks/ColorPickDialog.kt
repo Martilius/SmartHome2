@@ -13,7 +13,6 @@ import com.github.dhaval2404.colorpicker.ColorPickerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.martilius.smarthome.R
-import kotlinx.android.synthetic.main.pawels_room_fragment.*
 
 public class ColorPickDialog {
 
@@ -65,6 +64,8 @@ public class ColorPickDialog {
             ColorUtils.colorToHSL(pickedColor,hsl)
             tvBrightness.text = "Color brightness: ${(hsl[2]*100).toInt()}%"
             sliderBrightness.value = hsl[2]*100
+
+            UdpServices().sendWithoutRespond("set;${sharedprefsID};${Color.red(pickedColor)};${Color.green(pickedColor)};${Color.blue(pickedColor)}", context)
         }
 
         sliderValue.addOnChangeListener { slider, value, fromUser ->
@@ -79,6 +80,7 @@ public class ColorPickDialog {
                 tvBrightness.text = "Color brightness: ${(hsl[2]*100).toInt()}%"
                 sliderBrightness.value = hsl[2]*100
                 sharedPreferences.edit().putString(sharedprefsID, color.toString()).apply()
+                UdpServices().sendWithoutRespond("set;${sharedprefsID};${Color.red(color)};${Color.green(color)};${Color.blue(color)}", context)
             }
         }
 
@@ -93,6 +95,7 @@ public class ColorPickDialog {
                 tvValue.text = "Color value: ${(hsv[2]*100).toInt()}%"
                 sliderValue.value = hsv[2]*100
                 sharedPreferences.edit().putString(sharedprefsID, color.toString()).apply()
+                UdpServices().sendWithoutRespond("set;${sharedprefsID};${Color.red(color)};${Color.green(color)};${Color.blue(color)}", context)
             }
         }
 

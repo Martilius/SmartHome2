@@ -38,7 +38,7 @@ class OutsideFragment : DaggerFragment() {
             exitTransition = MaterialFadeThrough().setDuration(500L)
             val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE)
             additionalLightCustomButtonAltana.backgroundTintList =
-                ColorStateList.valueOf(sharedPreferences?.getString("AltanaCustomColor",Color.WHITE.toString()).toString().toInt())
+                ColorStateList.valueOf(sharedPreferences?.getString("alaltana",Color.WHITE.toString()).toString().toInt())
             headerAdditionalLightAltana.setOnClickListener{
                 btAdditionalLightCardViewExpanderAltana.isChecked = btAdditionalLightCardViewExpanderAltana.isChecked != true
             }
@@ -46,7 +46,7 @@ class OutsideFragment : DaggerFragment() {
             btPickCustomColorPawelsRoomAltana.setOnClickListener {
 
                 if (sharedPreferences != null) {
-                    ColorPickDialog().showDialog(context,sharedPreferences,"AltanaCustomColor",additionalLightCustomButtonAltana)
+                    ColorPickDialog().showDialog(context,sharedPreferences,"alaltana",additionalLightCustomButtonAltana)
                 }
 
             }
@@ -73,7 +73,7 @@ class OutsideFragment : DaggerFragment() {
                 Color.GREEN) }
             additionalLightBlueButtonAltana.setOnClickListener { ivAdditionalLightCardViewAltana.setBackgroundColor(
                 Color.BLUE) }
-            additionalLightCustomButtonAltana.setOnClickListener { ivAdditionalLightCardViewAltana.setBackgroundColor(sharedPreferences?.getString("AltanaCustomColor",Color.WHITE.toString()).toString().toInt()) }
+            additionalLightCustomButtonAltana.setOnClickListener { ivAdditionalLightCardViewAltana.setBackgroundColor(sharedPreferences?.getString("alaltana",Color.WHITE.toString()).toString().toInt()) }
         }
     }
 

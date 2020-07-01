@@ -56,16 +56,17 @@ class PawelsRoomFragment : DaggerFragment() {
                     //TransitionManager.beginDelayedTransition(cvHeadLight, AutoTransition())
                 }
             }
-            additionalLightCustomButton.backgroundTintList =ColorStateList.valueOf(sharedPreferences?.getString("PawelsRoomCustomColor",Color.WHITE.toString()).toString().toInt())
+            additionalLightCustomButton.backgroundTintList =ColorStateList.valueOf(sharedPreferences?.getString("alpawla",Color.WHITE.toString()).toString().toInt())
 
             headerAdditionalLight.setOnClickListener{
                 btAdditionalLightCardViewExpander.isChecked = btAdditionalLightCardViewExpander.isChecked != true
             }
+            val colorpickdial = ColorPickDialog()
 
             btPickCustomColorPawelsRoom.setOnClickListener {
 
                 if (sharedPreferences != null) {
-                    ColorPickDialog().showDialog(context,sharedPreferences,"PawelsRoomCustomColor",additionalLightCustomButton)
+                    ColorPickDialog().showDialog(context,sharedPreferences,"alpawla",additionalLightCustomButton)
                 }
 
             }
@@ -81,12 +82,11 @@ class PawelsRoomFragment : DaggerFragment() {
             }
 
 
-            additionalLightWhiteButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.WHITE)
-            sharedPreferences?.edit()?.putString("PawelsRoomCustomColor",Color.RED.toString())?.apply()}
+            additionalLightWhiteButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.WHITE) }
             additionalLightRedButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.RED) }
             additionalLightGreenButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.GREEN) }
             additionalLightBlueButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.BLUE) }
-            additionalLightCustomButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(sharedPreferences?.getString("PawelsRoomCustomColor",Color.WHITE.toString()).toString().toInt()) }
+            additionalLightCustomButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(sharedPreferences?.getString("alpawla",Color.WHITE.toString()).toString().toInt()) }
 
             btAdditionalLightCardViewExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
                 if(isChecked){
