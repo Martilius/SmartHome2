@@ -13,11 +13,10 @@ import androidx.core.graphics.ColorUtils
 import com.github.dhaval2404.colorpicker.ColorPickerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
-import com.hotLibrary.di.modules.ContextModule
 import com.martilius.smarthome.R
 import javax.inject.Inject
 
-public class ColorPickDialog {
+public class ColorPickDialog() {
 
 
     fun showDialog(context: Context, sharedPreferences: SharedPreferences, sharedprefsID:String, fab:FloatingActionButton, imageView: ImageView) {
