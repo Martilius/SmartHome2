@@ -1,4 +1,4 @@
-package com.hotLibrary.di.modules
+package com.martilius.smarthome.di.modules
 
 import com.martilius.smarthome.Tasks.ColorPickDialog
 import com.martilius.smarthome.adapters.LedAdapter
@@ -15,8 +15,6 @@ internal abstract class FragmentsModule {
     @ContributesAndroidInjector
     internal abstract fun bindOutsideFragment(): OutsideFragment
 
-    @ContributesAndroidInjector
-    internal abstract fun bindLedAdapter(): LedAdapter
 
     @ContributesAndroidInjector
     internal abstract fun bindPawelsRoomFragment(): PawelsRoomFragment

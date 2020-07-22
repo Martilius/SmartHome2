@@ -21,6 +21,14 @@ interface ConfigurationService {
         @Query("state") state:String
     )
 
+    @PUT("changeLedState")
+    suspend fun changeLedState(
+        @Query("ip")ip: String,
+        @Query("red")red:Int,
+        @Query("green")green:Int,
+        @Query("blue")blue:Int
+    )
+
 
 //    @GET("volumes/{volumeId}")
 //    suspend fun findBookByID(

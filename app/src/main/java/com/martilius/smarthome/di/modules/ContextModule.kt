@@ -1,4 +1,4 @@
-package com.hotLibrary.di.modules
+package com.martilius.smarthome.di.modules
 
 import android.content.Context
 import com.martilius.smarthome.SmartHomeApplication

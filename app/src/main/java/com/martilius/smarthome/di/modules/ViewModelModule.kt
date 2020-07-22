@@ -1,6 +1,7 @@
-package com.hotLibrary.di.modules
+package com.martilius.smarthome.di.modules
 
 import androidx.lifecycle.ViewModel
+import com.martilius.smarthome.di.modules.ViewModelKey
 import com.martilius.smarthome.ui.viewmodels.*
 
 import dagger.Binds
