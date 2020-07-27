@@ -3,12 +3,10 @@ package com.martilius.smarthome.di.components
 
 import com.hotLibrary.di.modules.*
 
-import com.hotLibrary.di.modules.FragmentsModule
 import com.martilius.smarthome.SmartHomeApplication
+import com.martilius.smarthome.di.modules.*
 import com.martilius.smarthome.di.modules.ActivityModule
-import com.martilius.smarthome.di.modules.RemoteModule
-import com.martilius.smarthome.di.modules.RepositoryModule
-import com.martilius.smarthome.di.modules.SharedPrefsModule
+import com.martilius.smarthome.di.modules.FragmentsModule
 import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
