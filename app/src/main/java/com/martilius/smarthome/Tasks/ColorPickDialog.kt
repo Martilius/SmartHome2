@@ -7,16 +7,19 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.Window
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
 import com.github.dhaval2404.colorpicker.ColorPickerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.martilius.smarthome.R
+import javax.inject.Inject
 
-public class ColorPickDialog {
+public class ColorPickDialog() {
 
-    fun showDialog(context: Context, sharedPreferences: SharedPreferences, sharedprefsID:String, fab:FloatingActionButton) {
+
+    fun showDialog(context: Context, sharedPreferences: SharedPreferences, sharedprefsID:String, fab:FloatingActionButton, imageView: ImageView) {
         val dialog = Dialog(context)
         var hsv = FloatArray(3)
         var hsl = FloatArray(3)
@@ -64,7 +67,7 @@ public class ColorPickDialog {
             ColorUtils.colorToHSL(pickedColor,hsl)
             tvBrightness.text = "Color brightness: ${(hsl[2]*100).toInt()}%"
             sliderBrightness.value = hsl[2]*100
-
+            imageView.setBackgroundColor(pickedColor)
             UdpServices().sendWithoutRespond("set;${sharedprefsID};${Color.red(pickedColor)};${Color.green(pickedColor)};${Color.blue(pickedColor)}", context)
         }
 
@@ -80,6 +83,7 @@ public class ColorPickDialog {
                 tvBrightness.text = "Color brightness: ${(hsl[2]*100).toInt()}%"
                 sliderBrightness.value = hsl[2]*100
                 sharedPreferences.edit().putString(sharedprefsID, color.toString()).apply()
+                imageView.setBackgroundColor(color)
                 UdpServices().sendWithoutRespond("set;${sharedprefsID};${Color.red(color)};${Color.green(color)};${Color.blue(color)}", context)
             }
         }
@@ -95,6 +99,7 @@ public class ColorPickDialog {
                 tvValue.text = "Color value: ${(hsv[2]*100).toInt()}%"
                 sliderValue.value = hsv[2]*100
                 sharedPreferences.edit().putString(sharedprefsID, color.toString()).apply()
+                imageView.setBackgroundColor(color)
                 UdpServices().sendWithoutRespond("set;${sharedprefsID};${Color.red(color)};${Color.green(color)};${Color.blue(color)}", context)
             }
         }

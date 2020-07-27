@@ -1,6 +1,7 @@
-package com.hotLibrary.di.modules
+package com.martilius.smarthome.di.modules
 
 import androidx.lifecycle.ViewModelProvider
+import com.martilius.smarthome.di.modules.DaggerViewModelFactory
 import dagger.Binds
 import dagger.Module
 

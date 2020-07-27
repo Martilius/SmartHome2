@@ -1,5 +1,7 @@
-package com.hotLibrary.di.modules
+package com.martilius.smarthome.di.modules
 
+import com.martilius.smarthome.Tasks.ColorPickDialog
+import com.martilius.smarthome.adapters.LedAdapter
 import com.martilius.smarthome.ui.fragments.*
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -14,7 +16,6 @@ internal abstract class FragmentsModule {
     internal abstract fun bindOutsideFragment(): OutsideFragment
 
 
-
     @ContributesAndroidInjector
     internal abstract fun bindPawelsRoomFragment(): PawelsRoomFragment
 
@@ -23,5 +24,7 @@ internal abstract class FragmentsModule {
 
     @ContributesAndroidInjector
     internal abstract fun bindSettingsFragment(): SettingsFragment
+
+
 
 }

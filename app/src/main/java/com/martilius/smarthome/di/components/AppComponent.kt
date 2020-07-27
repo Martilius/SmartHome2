@@ -6,6 +6,8 @@ import com.hotLibrary.di.modules.*
 import com.hotLibrary.di.modules.FragmentsModule
 import com.martilius.smarthome.SmartHomeApplication
 import com.martilius.smarthome.di.modules.ActivityModule
+import com.martilius.smarthome.di.modules.RemoteModule
+import com.martilius.smarthome.di.modules.RepositoryModule
 import com.martilius.smarthome.di.modules.SharedPrefsModule
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -21,7 +23,9 @@ import javax.inject.Singleton
             ActivityModule::class,
             ContextModule::class,
             ViewModelFactoryModule::class,
-            SharedPrefsModule::class
+            SharedPrefsModule::class,
+            RemoteModule::class,
+            RepositoryModule::class
         ]
 )
 

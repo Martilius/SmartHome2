@@ -16,6 +16,7 @@ import com.martilius.smarthome.R
 import com.martilius.smarthome.adapters.SaloonAdapter
 import com.martilius.smarthome.models.compoundList
 import com.martilius.smarthome.models.simpleList
+import com.martilius.smarthome.repository.Repository
 import com.martilius.smarthome.ui.viewmodels.LoginViewModel
 import com.martilius.smarthome.ui.viewmodels.SaloonViewModel
 import dagger.android.support.DaggerFragment
