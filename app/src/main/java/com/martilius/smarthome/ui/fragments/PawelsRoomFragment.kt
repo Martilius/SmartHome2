@@ -3,27 +3,18 @@ package com.martilius.smarthome.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.transition.MaterialFadeThrough
-import com.martilius.smarthome.MainActivity
 import com.martilius.smarthome.MainViewModel
 import com.martilius.smarthome.R
+import com.martilius.smarthome.adapters.HeadLightAdapter
 import com.martilius.smarthome.adapters.LedAdapter
-import com.martilius.smarthome.repository.Repository
-import com.martilius.smarthome.repository.remote.ConfigurationService
-import com.martilius.smarthome.repository.remote.UserService
+import com.martilius.smarthome.adapters.OnOffAdapter
 import com.martilius.smarthome.ui.viewmodels.PawelsRoomViewModel
-import dagger.Provides
 import dagger.android.support.DaggerFragment
-import kotlinx.android.synthetic.main.item_led_rgb.*
-import kotlinx.android.synthetic.main.item_led_rgb.view.*
 import kotlinx.android.synthetic.main.pawels_room_fragment.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PawelsRoomFragment : DaggerFragment() {
@@ -39,6 +30,18 @@ class PawelsRoomFragment : DaggerFragment() {
         }
     }
 
+    private val headLightAdapter by lazy {
+        HeadLightAdapter{
+
+        }
+    }
+
+    private val onOffAdapter by lazy {
+        OnOffAdapter{
+
+        }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,18 +51,40 @@ class PawelsRoomFragment : DaggerFragment() {
             enterTransition = MaterialFadeThrough().setDuration(500L)
             exitTransition = MaterialFadeThrough().setDuration(500L)
             val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE)
-            val sendingHlID = "hlpawla"
-            val sendingAlIDN = "alpawla"
-            rvPawla.adapter = ledAdapter
+            rvLedLight.adapter = ledAdapter
+            rvHeadLight.adapter = headLightAdapter
+            rvOnOffLight.adapter = onOffAdapter
             with(viewModel) {
                 configLedRGB.observe(viewLifecycleOwner, Observer {
                     ledAdapter.submitList(it)
+                })
+                configHL.observe(viewLifecycleOwner, Observer {
+                    headLightAdapter.submitList(it)
+                })
+                configAlOnOff.observe(viewLifecycleOwner, Observer {
+                    onOffAdapter.submitList(it)
+                })
+                configLedRGBNull.observe(viewLifecycleOwner, Observer {
+                    if(it){
+                        ledAdapter.submitList(null)
+                    }
+                })
+                configHLNull.observe(viewLifecycleOwner, Observer {
+                    if(it){
+                        headLightAdapter.submitList(null)
+                    }
+                })
+                configAlOnOffNull.observe(viewLifecycleOwner, Observer {
+                    if(it){
+                        onOffAdapter.submitList(null)
+                    }
                 })
             }
              val mainViewModel = activity?.let { ViewModelProvider(it).get(MainViewModel::class.java) }!!
 
             with(mainViewModel) {
                 newTitle.observe(viewLifecycleOwner, Observer {
+                    viewModel.findDevices(it)
                     //Toast.makeText(context, it.toString(), Toast.LENGTH_LONG).show()
                 })
             }
