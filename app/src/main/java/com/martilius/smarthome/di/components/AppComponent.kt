@@ -1,8 +1,4 @@
 package com.martilius.smarthome.di.components
-
-
-import com.hotLibrary.di.modules.*
-
 import com.martilius.smarthome.SmartHomeApplication
 import com.martilius.smarthome.di.modules.*
 import com.martilius.smarthome.di.modules.ActivityModule

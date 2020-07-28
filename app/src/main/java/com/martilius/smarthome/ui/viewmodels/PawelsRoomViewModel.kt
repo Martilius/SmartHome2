@@ -15,11 +15,7 @@ import kotlin.Exception
 
 class PawelsRoomViewModel @Inject constructor(private val repository: Repository, private val sharedPreferences: SharedPreferences, private val context:Context):ViewModel() {
 
-    val respond = MutableLiveData<String>()
-    val hlRespond = MutableLiveData<String>()
-    val alRespond = MutableLiveData<String>()
-    val initPawla = MutableLiveData<String>()
-    val refresh = MutableLiveData<String>()
+
     val respondOnOff: MutableList<Configuration> = arrayListOf()
     val respondLedRGB : MutableList<Configuration> = arrayListOf()
     val configOnOff = MutableLiveData<MutableList<Configuration>>()
@@ -37,6 +33,7 @@ class PawelsRoomViewModel @Inject constructor(private val repository: Repository
             configLedRGB.postValue(respondLedRGB)
             configOnOff.postValue(respondOnOff)
         }
+
 
     }
 
