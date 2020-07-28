@@ -45,3 +45,15 @@ data class Rooms(
     @SerializedName("id") val id: Int,
     @SerializedName("room") val roomName: String
 )
+
+data class DeviceType(
+    @PrimaryKey
+    @SerializedName("id") val id: Int,
+    @SerializedName("device_type") val deviceType: String
+)
+
+data class NewDevice(
+    @PrimaryKey
+    @SerializedName("id") val id: Int,
+    @SerializedName("ip") val ip: String
+)
