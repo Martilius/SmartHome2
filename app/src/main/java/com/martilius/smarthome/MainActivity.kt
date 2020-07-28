@@ -88,8 +88,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             it.forEach {
                 navView.menu.add(it.roomName).isCheckable = true
             }
-                //navView.menu.children.first().isEnabled = true
-                navView.menu.add("add")
+                //Toast.makeText(applicationContext,navView.menu.children.first().title.toString(),Toast.LENGTH_LONG).show()
+                viewModel.changeTitle(navView.menu.children.first().title.toString())
+                navView.menu.add("add").icon =  getDrawable(R.drawable.ic_baseline_add_24)
                 //navView.menu.getItem(0).isEnabled = true
                 navView.setNavigationItemSelectedListener(this@MainActivity)
                 visibilityNavElements(navController, navView)
@@ -99,7 +100,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             roomAdded.observe(this@MainActivity, Observer {
                 navView.menu.children.last().isVisible = false
                 navView.menu.add(it).isCheckable = true
-                navView.menu.add("add")
+                navView.menu.add("add").icon = getDrawable(R.drawable.ic_baseline_add_24)
 
             })
         }
@@ -179,6 +180,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             dialogView.etRoomName.addTextChangedListener {
                 dialogView.roomNameTextField.error = null
             }
+            dialogView.btAddRoomCancel.setOnClickListener { dialog.dismiss() }
 
         }else{
             viewModel.changeTitle(item.title.toString())
@@ -187,7 +189,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             drawer_layout.close()
             TransitionManager.beginDelayedTransition(drawer_layout,AutoTransition())
             //nav_view.setCheckedItem(item)
-            Toast.makeText(applicationContext,nav_view.checkedItem.toString(),Toast.LENGTH_LONG).show()
+            //Toast.makeText(applicationContext,nav_view.checkedItem.toString(),Toast.LENGTH_LONG).show()
         }
 
         return true
