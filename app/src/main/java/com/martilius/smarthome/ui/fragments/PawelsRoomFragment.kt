@@ -3,10 +3,13 @@ package com.martilius.smarthome.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.transition.MaterialFadeThrough
+import com.martilius.smarthome.MainActivity
+import com.martilius.smarthome.MainViewModel
 import com.martilius.smarthome.R
 import com.martilius.smarthome.adapters.LedAdapter
 import com.martilius.smarthome.repository.Repository
@@ -23,15 +26,16 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class PawelsRoomFragment : DaggerFragment()  {
+class PawelsRoomFragment : DaggerFragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
     private val viewModel by viewModels<PawelsRoomViewModel> { factory }
+    //private val mainViewModel by viewModels<MainViewModel> { factory }
 
 
     private val ledAdapter by lazy {
-        LedAdapter{
+        LedAdapter {
         }
     }
 
@@ -47,9 +51,16 @@ class PawelsRoomFragment : DaggerFragment()  {
             val sendingHlID = "hlpawla"
             val sendingAlIDN = "alpawla"
             rvPawla.adapter = ledAdapter
-            with(viewModel){
+            with(viewModel) {
                 configLedRGB.observe(viewLifecycleOwner, Observer {
                     ledAdapter.submitList(it)
+                })
+            }
+             val mainViewModel = activity?.let { ViewModelProvider(it).get(MainViewModel::class.java) }!!
+
+            with(mainViewModel) {
+                newTitle.observe(viewLifecycleOwner, Observer {
+                    //Toast.makeText(context, it.toString(), Toast.LENGTH_LONG).show()
                 })
             }
 

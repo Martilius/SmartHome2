@@ -2,6 +2,8 @@ package com.martilius.smarthome.repository.remote
 
 import androidx.room.FtsOptions
 import com.martilius.smarthome.models.Configuration
+import com.martilius.smarthome.models.Respond
+import com.martilius.smarthome.models.Rooms
 import com.martilius.smarthome.models.findDevicesConfigurationResponse
 import retrofit2.http.GET
 import retrofit2.http.PUT
@@ -28,6 +30,15 @@ interface ConfigurationService {
         @Query("green")green:Int,
         @Query("blue")blue:Int
     )
+
+    @GET("roomsList")
+    suspend fun findRoomsList(
+    ):List<Rooms>
+
+    @GET("addRoom")
+    suspend fun addRoom(
+        @Query("roomName")roomName:String
+    ):Respond
 
 
 //    @GET("volumes/{volumeId}")

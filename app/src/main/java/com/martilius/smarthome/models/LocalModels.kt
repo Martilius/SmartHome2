@@ -14,19 +14,8 @@ data class CupboardwithState(
     val turnedOn: Boolean
 )
 
-fun compoundList():MutableList<Cupboard>{
-    var list:MutableList<Cupboard> = arrayListOf()
-    list.add(Cupboard("Szafka Lewa","alcupboardsalon1"))
-    list.add(Cupboard("Szafka prawa","alcupboardsalon2"))
-    list.add(Cupboard("Szafka tył","alcupboardsalon3"))
-    return list
-}
 
-fun simpleList():MutableList<Cupboard>{
-    val list:MutableList<Cupboard> = arrayListOf()
-    list.add(Cupboard("Szafki","alcupboardsalon"))
-    return list
-}
+
 
 @Entity(tableName = "configuration")
 data class Configuration(
@@ -49,4 +38,10 @@ data class findDevicesConfigurationResponse(
 data class Respond(
     @PrimaryKey
     @SerializedName("respond") val respond:String
+)
+
+data class Rooms(
+    @PrimaryKey
+    @SerializedName("id") val id: Int,
+    @SerializedName("room") val roomName: String
 )

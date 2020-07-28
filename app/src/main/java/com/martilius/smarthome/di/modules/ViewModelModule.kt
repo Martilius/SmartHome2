@@ -1,6 +1,7 @@
 package com.martilius.smarthome.di.modules
 
 import androidx.lifecycle.ViewModel
+import com.martilius.smarthome.MainViewModel
 import com.martilius.smarthome.di.modules.ViewModelKey
 import com.martilius.smarthome.ui.viewmodels.*
 
@@ -18,22 +19,16 @@ internal abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(key = OutsideViewModel::class)
-    abstract fun bindOutsideViewModel(viewModel: OutsideViewModel): ViewModel
-
-    @Binds
-    @IntoMap
     @ViewModelKey(key = PawelsRoomViewModel::class)
     abstract fun bindPawelsRoomViewModel(viewModel: PawelsRoomViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(key = SaloonViewModel::class)
-    abstract fun bindSaloonViewModel(viewModel: SaloonViewModel): ViewModel
-
+    @ViewModelKey(key= SettingsViewModel::class)
+    abstract fun bindSettingsViewModel(viewModel: SettingsViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @ViewModelKey(key= SettingsViewModel::class)
-    abstract fun bindSettingsViewModel(viewModel: SettingsViewModel): ViewModel
+    @ViewModelKey(key= MainViewModel::class)
+    abstract fun bindMainViewModel(viewModel: MainViewModel): ViewModel
 }

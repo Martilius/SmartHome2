@@ -13,4 +13,6 @@
     <string name="hl_pawla_startup">startup;hlpawla</string>
     <string name="al_pawla_startup">startup;alpawla</string>
     <string name="pawla_init">upd;pawlaRoom</string>
+    <string name="bbbb">b</string>
+    <string name="room_name">Room name</string>
 </resources>

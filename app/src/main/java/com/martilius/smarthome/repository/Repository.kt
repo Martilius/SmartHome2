@@ -15,4 +15,8 @@ class Repository(
     suspend fun registerRequest(login:String, password:String) = userService.register(login,password)
 
     suspend fun loginRequest(login: String, password: String) = userService.login(login,password)
+
+    suspend fun findRooms() = configurationService.findRoomsList()
+
+    suspend fun addRoom(roomName:String) = configurationService.addRoom(roomName)
 }
