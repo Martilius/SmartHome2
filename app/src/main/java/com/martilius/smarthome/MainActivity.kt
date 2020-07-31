@@ -29,14 +29,29 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
+import com.google.gson.Gson
+import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import com.martilius.smarthome.adapters.NewDeviceAdapter
 import com.martilius.smarthome.models.DeviceType
 import com.martilius.smarthome.models.NewDevice
+import com.martilius.smarthome.models.Rooms
+import com.martilius.smarthome.models.RoomsResponse
 import dagger.android.support.DaggerAppCompatActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adding_devices_dialog.view.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.room_adding_dialog.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
+import org.json.JSONArray
+import org.json.JSONObject
+import ua.naiksoftware.stomp.Stomp
+import ua.naiksoftware.stomp.StompClient
+import ua.naiksoftware.stomp.dto.LifecycleEvent
+import java.lang.reflect.Type
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -53,6 +68,12 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         }
     }
 
+    val stompClient: StompClient = Stomp.over(
+        Stomp.ConnectionProvider.OKHTTP,
+        "ws://192.168.2.174:9999/mywebsocket/websocket"
+    )
+
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -65,6 +86,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         lateinit var  deviceTypes: List<DeviceType>
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+        viewModel.connection(stompClient,navView)
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_settings -> {
@@ -94,11 +116,6 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             dialogView.deviceTypeAutoCompleteTextView.setAdapter(deviceTypeAdapter)
             dialogView.roomAutoCompleteTextView.setText(supportActionBar?.title,false)
             dialogView.rvNewDevice.adapter = newDeviceAdapter
-//            val decoration = DividerItemDecoration(applicationContext,DividerItemDecoration.VERTICAL)
-//            decoration.setDrawable(ShapeDrawable().apply {
-//                intrinsicHeight = resources.getDimensionPixelOffset(R.dimen.activity_horizontal_margin)
-//            })
-//            dialogView.rvNewDevice.addItemDecoration(decoration)
             val dialog = Dialog(this)
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setCancelable(true)
@@ -110,8 +127,6 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     val selected =  newDeviceAdapter.currentList.get(newDeviceAdapter.getSelected())
                     Toast.makeText(applicationContext,selected.ip,Toast.LENGTH_LONG).show()
                 }
-
-            //Toast.makeText(applicationContext, newDeviceAdapter.getSelected().toString(),Toast.LENGTH_LONG).show()
             }
             newDeviceAdapter.submitList(listOf(NewDevice(id = 1,ip = "192.168.1.1"),NewDevice(id = 2,ip = "192.168.2.2")))
         }
@@ -122,24 +137,25 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             it.forEach {
                 navView.menu.add(it.roomName).isCheckable = true
             }
-                //Toast.makeText(applicationContext,navView.menu.children.first().title.toString(),Toast.LENGTH_LONG).show()
                 viewModel.changeTitle(navView.menu.children.first().title.toString())
                 navView.menu.add("add").icon =  getDrawable(R.drawable.ic_baseline_add_24)
-                //navView.menu.getItem(0).isEnabled = true
                 navView.setNavigationItemSelectedListener(this@MainActivity)
                 visibilityNavElements(navController, navView)
                 onNavigationItemSelected(navView.menu.getItem(0))
-                //Toast.makeText(applicationContext,navView.checkedItem.toString(),Toast.LENGTH_LONG).show()
             })
-            roomAdded.observe(this@MainActivity, Observer {
-                navView.menu.children.last().isVisible = false
-                navView.menu.add(it).isCheckable = true
+            roomCountChanged.observe(this@MainActivity, Observer {
+                navView.menu.clear()
+                it.forEach {
+                    navView.menu.add(it.roomName).isCheckable = true
+                }
                 navView.menu.add("add").icon = getDrawable(R.drawable.ic_baseline_add_24)
-
             })
 
             deviceTypeResponse.observe(this@MainActivity, Observer {
                 deviceTypes = it
+            })
+            checkResponse.observe(this@MainActivity, Observer {
+                Toast.makeText(applicationContext, it, Toast.LENGTH_SHORT).show()
             })
         }
         navView.setupWithNavController(navController)
@@ -210,7 +226,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 if(dialogView.etRoomName.text.isNullOrEmpty()){
                     dialogView.roomNameTextField.error="cant be empty"
                 }else{
-                    viewModel.AddRoom(dialogView.etRoomName.text.toString())
+                    viewModel.sendViaWebSocket(stompClient, dialogView.etRoomName)
                     dialog.dismiss()
                 }
             }
@@ -221,14 +237,13 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
         }else{
             viewModel.changeTitle(item.title.toString())
-            //Toast.makeText(applicationContext, item.title.toString(), Toast.LENGTH_SHORT).show()
             supportActionBar?.title =item.title
             drawer_layout.close()
             TransitionManager.beginDelayedTransition(drawer_layout,AutoTransition())
-            //nav_view.setCheckedItem(item)
-            //Toast.makeText(applicationContext,nav_view.checkedItem.toString(),Toast.LENGTH_LONG).show()
         }
 
         return true
     }
+
+
 }

@@ -88,6 +88,38 @@ val receivedMessage = MutableLiveData<String>()
         }
     }
 
+    fun devicesActualization(deviceList:List<Configuration>){
+        val respondHL: MutableList<Configuration> = arrayListOf()
+        val respondLedRGB: MutableList<Configuration> = arrayListOf()
+        val respondAlOnOff: MutableList<Configuration> = arrayListOf()
+
+        deviceList.forEach {
+            if (it.deviceType.equals("ledrgb")) {
+                respondLedRGB.add(it)
+            } else if (it.deviceType.equals("hl")) {
+                respondHL.add(it)
+            } else if (it.deviceType.equals("alonoff")) {
+                respondAlOnOff.add(it)
+            }
+        }
+
+        if (respondLedRGB.isNullOrEmpty()) {
+            configLedRGBNull.postValue(true)
+        } else {
+            configLedRGB.postValue(respondLedRGB)
+        }
+        if (respondAlOnOff.isNullOrEmpty()) {
+            configAlOnOffNull.postValue(true)
+        } else {
+            configAlOnOff.postValue(respondAlOnOff)
+        }
+        if (respondHL.isNullOrEmpty()) {
+            configHLNull.postValue(true)
+        } else {
+            configHL.postValue(respondHL)
+        }
+    }
+
 //    init {
 //        SendWithResult(context.getString(R.string.pawla_init), initPawla)
 //    }

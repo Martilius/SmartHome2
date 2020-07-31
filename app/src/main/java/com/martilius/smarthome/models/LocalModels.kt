@@ -57,3 +57,7 @@ data class NewDevice(
     @SerializedName("id") val id: Int,
     @SerializedName("ip") val ip: String
 )
+
+data class RoomsResponse(
+    val bla : List<Rooms>
+)

@@ -7,15 +7,23 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.martilius.smarthome.R
 import com.martilius.smarthome.models.Configuration
+import com.martilius.smarthome.models.Rooms
 import com.martilius.smarthome.repository.remote.ConfigurationService
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.item_headlight.view.*
 import kotlinx.android.synthetic.main.item_led_rgb.view.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ua.naiksoftware.stomp.Stomp
+import ua.naiksoftware.stomp.StompClient
+import ua.naiksoftware.stomp.dto.LifecycleEvent
 
 
 class HeadLightAdapter(
@@ -23,17 +31,19 @@ class HeadLightAdapter(
 ) : ListAdapter<Configuration, HeadLightAdapter.HeadLightViewHolder>(DIFF_CALLBACK) {
 
 
-    class HeadLightViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.2.174:8080/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(OkHttpClient())
-            .build()
-            .create(ConfigurationService::class.java)
 
+    inner class HeadLightViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+//        val stompClient: StompClient = Stomp.over(
+//            Stomp.ConnectionProvider.OKHTTP,
+//            "ws://192.168.2.174:9999/mywebsocket/websocket"
+//        )
         //val button: ToggleButton = itemView.findViewById(R.id.toggleButtonItemOnOff)
         fun bind(item: Configuration, listener: (Configuration) -> Unit) {
             itemView.apply {
+                val stompClient: StompClient = Stomp.over(
+                    Stomp.ConnectionProvider.OKHTTP,
+                    "ws://192.168.2.174:9999/mywebsocket/websocket"
+                )
                 tvHeadLightTitle.text = item.name
                 btHeadLightSwitch.isChecked = item.state.equals("on")
                 if(item.state.equals("on")){
@@ -41,20 +51,60 @@ class HeadLightAdapter(
                 }else{
                     ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
                 }
-
-
-
+//                stompClient.topic("/device/${item.ip}")
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(Schedulers.computation())
+//                    .subscribe({
+//                        val arrayType = object : TypeToken<Configuration>() {}.type
+//                        val received: Configuration = Gson().fromJson(it.payload, arrayType)
+//                        if(received.state.equals("on")){
+//                            ivHeadLightCardView.setImageResource(R.drawable.lampv2on)
+//                            btHeadLightSwitch.isChecked = true
+//                        }else{
+//                            btHeadLightSwitch.isChecked = false
+//                            ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
+//                        }
+//                        //btHeadLightSwitch.isChecked = received.state.equals("on")
+//                        //Toast.makeText(context, it.payload.toString(), Toast.LENGTH_LONG).show()
+//
+//                    }, { t: Throwable? ->
+//
+//                    })
+                stompClient.connect()
+                stompClient.lifecycle()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.computation())
+                    .subscribe({
+                        when (it.type) {
+                            LifecycleEvent.Type.OPENED -> {
+                                // viewModel.receive(it.type.name)
+                            }
+                            LifecycleEvent.Type.ERROR -> {
+                                //check(it.message.toString())
+                                //  viewModel.receive(it.type.name)
+                            }
+                            LifecycleEvent.Type.CLOSED -> {
+                                //   viewModel.receive(it.type.name)
+                            }
+                        }
+                    }, { t: Throwable ->
+                        // viewModel.receive(t.toString())
+                    })
                 btHeadLightSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
                     if (isChecked && (btHeadLightSwitch.isPressed || headerHeadLight.isPressed)) {
                         ivHeadLightCardView.setImageResource(R.drawable.lampv2on)
-                        GlobalScope.launch {
-                            retrofit.changeState(item.ip, "on")
-                        }
+                        stompClient.send("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/on")
+                            .unsubscribeOn(Schedulers.newThread())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe()
                     } else if (!isChecked && (btHeadLightSwitch.isPressed || headerHeadLight.isPressed)) {
                         ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
-                        GlobalScope.launch {
-                            retrofit.changeState(item.ip, "off")
-                        }
+                        stompClient.send("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/off")
+                            .unsubscribeOn(Schedulers.newThread())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe()
                     }
 
                 }
@@ -77,13 +127,7 @@ class HeadLightAdapter(
 
     override fun onBindViewHolder(holder: HeadLightViewHolder, position: Int) {
         holder.bind(getItem(position), listener)
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.2.174:8080/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(OkHttpClient())
-            .build()
-            .create(ConfigurationService::class.java)
-        val bla = getItem(position)
+
 
     }
 
