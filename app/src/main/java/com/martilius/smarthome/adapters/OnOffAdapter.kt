@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.martilius.smarthome.R
+import com.martilius.smarthome.Service.StompService
 import com.martilius.smarthome.Tasks.UdpServices
 import com.martilius.smarthome.models.Configuration
 import com.martilius.smarthome.models.Cupboard
@@ -25,17 +26,20 @@ class OnOffAdapter(
     private val listener: (Configuration) -> Unit
 ) : ListAdapter<Configuration, OnOffAdapter.SaloonViewHolder>(DIFF_CALLBACK) {
 
+    val stomp = StompService()
 
-    class SaloonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class SaloonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         //val button: ToggleButton = itemView.findViewById(R.id.toggleButtonItemOnOff)
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.2.174:8080/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(OkHttpClient())
-            .build()
-            .create(ConfigurationService::class.java)
+//        val retrofit = Retrofit.Builder()
+//            .baseUrl("http://192.168.2.174:8080/")
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .client(OkHttpClient())
+//            .build()
+//            .create(ConfigurationService::class.java)
+
         fun bind(item: Configuration, listener: (Configuration) -> Unit) {
             itemView.apply {
+                stomp.initial()
                 tv_item_on_off.text = item.name
                 toggleButtonItemOnOff.isChecked = item.state.equals("on")
 
@@ -45,13 +49,9 @@ class OnOffAdapter(
                 }
                 toggleButtonItemOnOff.setOnCheckedChangeListener { compoundButton, isChecked ->
                     if(isChecked && (toggleButtonItemOnOff.isPressed || item_on_off.isPressed)){
-                        GlobalScope.launch {
-                            retrofit.changeState(item.ip,"on")
-                        }
+                        stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/on")
                         }else if(!isChecked && (toggleButtonItemOnOff.isPressed || item_on_off.isPressed)){
-                        GlobalScope.launch {
-                            retrofit.changeState(item.ip,"off")
-                        }
+                        stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/off")
                     }
                 }
                 //setOnClickListener { listener(item) }

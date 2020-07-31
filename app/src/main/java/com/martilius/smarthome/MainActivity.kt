@@ -2,6 +2,7 @@ package com.martilius.smarthome
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.os.Build
 import android.os.Bundle
@@ -33,11 +34,9 @@ import androidx.room.Room
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
+import com.martilius.smarthome.Service.CustomAdapter
 import com.martilius.smarthome.adapters.NewDeviceAdapter
-import com.martilius.smarthome.models.DeviceType
-import com.martilius.smarthome.models.NewDevice
-import com.martilius.smarthome.models.Rooms
-import com.martilius.smarthome.models.RoomsResponse
+import com.martilius.smarthome.models.*
 import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -135,7 +134,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             menuList.observe(this@MainActivity, Observer {
             navView.menu.clear()
             it.forEach {
-                navView.menu.add(it.roomName).isCheckable = true
+                navView.menu.add(it.roomName).setIcon(getDrawable(R.drawable.living_room)).isCheckable = true
             }
                 viewModel.changeTitle(navView.menu.children.first().title.toString())
                 navView.menu.add("add").icon =  getDrawable(R.drawable.ic_baseline_add_24)
@@ -222,6 +221,18 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             dialog.setContentView(dialogView)
             dialog.show()
 
+            val adapter :ArrayList<RoomTypes> = ArrayList()
+
+            adapter.add(RoomTypes.BATHROOM)
+            adapter.add(RoomTypes.LIVING_ROOM)
+            adapter.add(RoomTypes.BEDROOM)
+            adapter.add(RoomTypes.GARAGE)
+            adapter.add(RoomTypes.KITCHEN)
+            adapter.add(RoomTypes.LIBRARY)
+
+            val adapterDone = CustomAdapter(applicationContext,R.layout.dropdown_menu_drawable,adapter)
+           // dialogView.addRoomAutoCompleteTextView.setAdapter(adapterDone)
+            dialogView.spinner.adapter = adapterDone
             dialogView.btAddRoom.setOnClickListener {
                 if(dialogView.etRoomName.text.isNullOrEmpty()){
                     dialogView.roomNameTextField.error="cant be empty"

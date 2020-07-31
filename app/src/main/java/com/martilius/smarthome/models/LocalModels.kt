@@ -3,6 +3,7 @@ package com.martilius.smarthome.models
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
+import com.martilius.smarthome.R
 
 data class Cupboard(
     val name:String,
@@ -61,3 +62,17 @@ data class NewDevice(
 data class RoomsResponse(
     val bla : List<Rooms>
 )
+
+data class CustomItem(
+    val title:String,
+    val view:Int
+)
+
+enum class RoomTypes(val res:Int){
+    BATHROOM(R.drawable.bathroom),
+    LIVING_ROOM(R.drawable.living_room),
+    BEDROOM(R.drawable.bedroom),
+    GARAGE(R.drawable.garage),
+    KITCHEN(R.drawable.kitchen),
+    LIBRARY(R.drawable.library)
+}

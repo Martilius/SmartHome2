@@ -122,11 +122,7 @@ class PawelsRoomFragment : DaggerFragment() {
                     }
                 })
                 receivedMessage.observe(viewLifecycleOwner, Observer {
-                    //if(it.equals("closed!")||it.equals("error!")){
                     test.text = it.toString()
-                    //}else{
-                    //Toast.makeText(context, it.toString(), Toast.LENGTH_SHORT).show()
-                    //}
                 })
             }
             val mainViewModel =
