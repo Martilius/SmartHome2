@@ -17,6 +17,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    packagingOptions {
+        exclude 'META-INF/*.kotlin_module'
+    }
 
     buildTypes {
         release {
@@ -64,4 +67,17 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$rootProject.retrofit_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$rootProject.logger_version"
     implementation 'com.google.code.gson:gson:2.8.5'
+    implementation "org.java-websocket:Java-WebSocket:1.5.1"
+//    implementation "io.ktor:ktor-client-websockets:$ktor_version"
+//    implementation "io.ktor:ktor-client-cio:$ktor_version"
+//    implementation "io.ktor:ktor-client-js:$ktor_version"
+//    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+//    implementation 'tech.gusavila92:java-android-websocket-client:1.2.2'
+//    implementation "org.hildan.krossbow:krossbow-stomp-core-metadata:$krossbowVersion"
+//    implementation "org.hildan.krossbow:krossbow-stomp-core-jvm:$krossbowVersion"
+//    implementation "org.hildan.krossbow:krossbow-stomp-core-js:0.21.1"
+    implementation 'com.github.NaikSoftware:StompProtocolAndroid:1.6.4'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+    implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
+
 }

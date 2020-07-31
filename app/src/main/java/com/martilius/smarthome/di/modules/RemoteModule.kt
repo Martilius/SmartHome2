@@ -19,7 +19,7 @@ class RemoteModule {
     @Singleton
     fun provideConfigurationService(okHttpClient: OkHttpClient): ConfigurationService =
             Retrofit.Builder()
-                    .baseUrl("http://192.168.2.174:8080/")
+                    .baseUrl("http://192.168.2.174:9999/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(okHttpClient)
                     .build()
@@ -29,7 +29,7 @@ class RemoteModule {
     @Singleton
     fun provideUserService(okHttpClient: OkHttpClient): UserService =
         Retrofit.Builder()
-            .baseUrl("http://192.168.2.174:8080/")
+            .baseUrl("http://192.168.2.174:9999/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()

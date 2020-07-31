@@ -23,7 +23,7 @@ class PawelsRoomViewModel @Inject constructor(
     val configHLNull = MutableLiveData<Boolean>()
     val configLedRGBNull = MutableLiveData<Boolean>()
     val configAlOnOffNull = MutableLiveData<Boolean>()
-
+val receivedMessage = MutableLiveData<String>()
 
 //    init {
 //        viewModelScope.launch {
@@ -44,6 +44,10 @@ class PawelsRoomViewModel @Inject constructor(
 //
 //
 //    }
+
+    fun receive(received:String){
+        receivedMessage.postValue(received)
+    }
 
     fun findDevices(roomName: String) {
         val respondHL: MutableList<Configuration> = arrayListOf()

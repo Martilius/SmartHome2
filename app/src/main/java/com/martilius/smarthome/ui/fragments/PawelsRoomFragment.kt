@@ -1,8 +1,12 @@
 package com.martilius.smarthome.ui.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,8 +18,20 @@ import com.martilius.smarthome.adapters.LedAdapter
 import com.martilius.smarthome.adapters.OnOffAdapter
 import com.martilius.smarthome.ui.viewmodels.PawelsRoomViewModel
 import dagger.android.support.DaggerFragment
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.pawels_room_fragment.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.launch
+import org.java_websocket.WebSocket
+import org.java_websocket.client.WebSocketClient
+import ua.naiksoftware.stomp.Stomp
+import ua.naiksoftware.stomp.StompClient
+import ua.naiksoftware.stomp.dto.LifecycleEvent
+import ua.naiksoftware.stomp.dto.StompHeader
 import javax.inject.Inject
+
 
 class PawelsRoomFragment : DaggerFragment() {
 
@@ -31,18 +47,24 @@ class PawelsRoomFragment : DaggerFragment() {
     }
 
     private val headLightAdapter by lazy {
-        HeadLightAdapter{
+        HeadLightAdapter {
 
         }
     }
 
     private val onOffAdapter by lazy {
-        OnOffAdapter{
+        OnOffAdapter {
 
         }
     }
+    lateinit var webSocketClient: WebSocketClient
 
+    val stompClient: StompClient = Stomp.over(
+        Stomp.ConnectionProvider.OKHTTP,
+        "ws://192.168.2.174:9999/mywebsocket/websocket"
+    )
 
+    @InternalCoroutinesApi
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,6 +73,21 @@ class PawelsRoomFragment : DaggerFragment() {
             enterTransition = MaterialFadeThrough().setDuration(500L)
             exitTransition = MaterialFadeThrough().setDuration(500L)
             val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE)
+            //val request = Request.Builder().url("ws://localhost:8080/myWebServer").build()
+            //val listener = EchoServer();
+            //val ws = OkHttpClient().newWebSocket(request,listener)
+            //createWebSocketClient()
+            //val stomp = StompClient()
+
+            connection()
+            testButton.setOnClickListener {
+                stompClient.send("/app/type","bbbb")
+                    .unsubscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe()
+            }
+
             rvLedLight.adapter = ledAdapter
             rvHeadLight.adapter = headLightAdapter
             rvOnOffLight.adapter = onOffAdapter
@@ -65,22 +102,30 @@ class PawelsRoomFragment : DaggerFragment() {
                     onOffAdapter.submitList(it)
                 })
                 configLedRGBNull.observe(viewLifecycleOwner, Observer {
-                    if(it){
+                    if (it) {
                         ledAdapter.submitList(null)
                     }
                 })
                 configHLNull.observe(viewLifecycleOwner, Observer {
-                    if(it){
+                    if (it) {
                         headLightAdapter.submitList(null)
                     }
                 })
                 configAlOnOffNull.observe(viewLifecycleOwner, Observer {
-                    if(it){
+                    if (it) {
                         onOffAdapter.submitList(null)
                     }
                 })
+                receivedMessage.observe(viewLifecycleOwner, Observer {
+                    //if(it.equals("closed!")||it.equals("error!")){
+                    test.text = it.toString()
+                    //}else{
+                    //Toast.makeText(context, it.toString(), Toast.LENGTH_SHORT).show()
+                    //}
+                })
             }
-             val mainViewModel = activity?.let { ViewModelProvider(it).get(MainViewModel::class.java) }!!
+            val mainViewModel =
+                activity?.let { ViewModelProvider(it).get(MainViewModel::class.java) }!!
 
             with(mainViewModel) {
                 newTitle.observe(viewLifecycleOwner, Observer {
@@ -181,11 +226,142 @@ class PawelsRoomFragment : DaggerFragment() {
         }
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        //viewModel = ViewModelProviders.of(this).get(PawelsRoomViewModel::class.java)
-        // TODO: Use the ViewModel
+    @SuppressLint("CheckResult")
+    @InternalCoroutinesApi
+    private fun connection() {
+        //GlobalScope.launch {
+//            //val stomp = StompClient().connect("ws://192.168.2.174/myWebSocket","","")
+//            stomp.subscribe("/topic/message").map { it.bodyAsText}
+//            coroutineScope {
+//                val test = stomp.subscribe("/").collect()
+//            }
+
+//            val stompClient: StompClient = ua.naiksoftware.stomp.Stomp.over(ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP,"ws://192.168.2.174/myWebSocket")
+//            stompClient.connect()
+//            stompClient.topic("topic/message").subscribe()
+//            val disposable : Disposable = stompClient.topic("topic/message")
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .subscribe()
+//
+//        })
+
+//            val stompClient: StompClient = Stomp.over(
+//                Stomp.ConnectionProvider.OKHTTP,
+//                "ws://192.168.2.174:9999/mywebsocket/websocket"
+//            )
+            val headers: MutableList<StompHeader> = ArrayList()
+            headers.add(StompHeader("login", "guest"))
+            headers.add(StompHeader("passcode", "guest"))
+            stompClient.withServerHeartbeat(10000)
+            stompClient.topic("/topic/test")
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .subscribe({
+                    viewModel.receive(it.payload.toString())
+                    //Toast.makeText(context, it.payload.toString(), Toast.LENGTH_LONG).show()
+
+                }, { t: Throwable? ->
+                    viewModel.receive(t.toString())
+                })
+        stompClient.connect()
+        stompClient.lifecycle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .subscribe({
+                    when (it.type) {
+                        LifecycleEvent.Type.OPENED -> {
+                            viewModel.receive(it.type.name)
+                        }
+                        LifecycleEvent.Type.ERROR -> {
+                            viewModel.receive(it.type.name)
+                        }
+                        LifecycleEvent.Type.CLOSED -> {
+                            viewModel.receive(it.type.name)
+                        }
+                    }
+                }, { t: Throwable ->
+                    viewModel.receive(t.toString())
+                })
+            stompClient.send("/app/type","bbbb")
+                .unsubscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+
+
+//            val webSocket = object: WebSocketClient(URI("ws://192.168.2.174/myWebSocket")){
+//
+//                override fun onOpen(handshakedata: ServerHandshake?) {
+//                    TODO("Not yet implemented")
+//                }
+//
+//                override fun onClose(code: Int, reason: String?, remote: Boolean) {
+//                    TODO("Not yet implemented")
+//                }
+//
+//                override fun onMessage(message: String?) {
+//                    TODO("Not yet implemented")
+//                }
+//
+//                override fun onError(ex: Exception?) {
+//                    TODO("Not yet implemented")
+//                }
+//
+//            }
+
+            //stomp.subscribeText()
+       // }
+
     }
+
+
+//    private fun createWebSocketClient() {
+//        val uri: URI
+//        try {
+//            // Connect to local host
+//            uri = URI("ws://192.168.2.174:8080/websocket")
+//        } catch (e: URISyntaxException) {
+//            e.printStackTrace()
+//            return
+//        }
+//        webSocketClient = object : WebSocketClient(uri) {
+//
+//
+//            fun onBinaryReceived(data: ByteArray?) {}
+//            fun onPingReceived(data: ByteArray?) {}
+//            fun onPongReceived(data: ByteArray?) {}
+//            fun onException(e: Exception) {
+//                println(e.message)
+//            }
+//
+//            override fun onOpen(handshakedata: ServerHandshake?) {
+//                webSocketClient.send("eluwina!")
+//            }
+//
+//            override fun onClose(code: Int, reason: String?, remote: Boolean) {
+//                webSocketClient.send("closed!")
+//            }
+//
+//            override fun onMessage(message: String?) {
+//            GlobalScope.launch(Dispatchers.IO) {
+//                try {
+//                    viewModel.receive(message.toString())
+//                    //Toast.makeText(context,message.toString(),Toast.LENGTH_LONG).show()
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
+//            }
+//
+//            override fun onError(ex: java.lang.Exception?) {
+//                webSocketClient.send("error!")
+//            }
+//        }
+//       // webSocketClient.connectionLostTimeout = 10000
+//        //webSocketClient.reconnect()
+//        webSocketClient.connect()
+//    }
 
 
 }
