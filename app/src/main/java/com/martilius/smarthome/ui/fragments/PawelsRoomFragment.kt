@@ -22,6 +22,8 @@ import com.martilius.smarthome.models.Configuration
 import com.martilius.smarthome.ui.viewmodels.PawelsRoomViewModel
 import dagger.android.support.DaggerFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.item_headlight.view.*
 import kotlinx.android.synthetic.main.pawels_room_fragment.view.*
@@ -67,6 +69,9 @@ class PawelsRoomFragment : DaggerFragment() {
         Stomp.ConnectionProvider.OKHTTP,
         "ws://192.168.2.174:9999/mywebsocket/websocket"
     )
+
+    lateinit var disposable: Disposable
+    private var compositeDisposable: CompositeDisposable? =null
 
     @InternalCoroutinesApi
     override fun onCreateView(
@@ -132,124 +137,17 @@ class PawelsRoomFragment : DaggerFragment() {
                 newTitle.observe(viewLifecycleOwner, Observer {
                     viewModel.findDevices(it)
                     roomTitle = it
-                    connection(roomTitle)
+                    resetSubscription()
+                    subscription(it)
+                    connection()
                     //Toast.makeText(context, it.toString(), Toast.LENGTH_LONG).show()
                 })
             }
-
-            //TransitionManager.beginDelayedTransition(rvPawla, AutoTransition())
-//            val udpServices = UdpServices()
-//            additionalLightCustomButton.backgroundTintList =ColorStateList.valueOf(sharedPreferences?.getString(sendingAlIDN,Color.WHITE.toString()).toString().toInt())
-//
-//            headerAdditionalLight.setOnClickListener{
-//                btAdditionalLightCardViewExpander.isChecked = btAdditionalLightCardViewExpander.isChecked != true
-//            }
-//
-//            btPickCustomColorPawelsRoom.setOnClickListener {
-//
-//                if (sharedPreferences != null) {
-//                    ColorPickDialog().showDialog(context,sharedPreferences,sendingAlIDN,additionalLightCustomButton, ivAdditionalLightCardView)
-//                }
-//
-//            }
-//
-//            srlPawelsRoom.setOnRefreshListener {
-//                //viewModel.refresh()
-//            }
-//            with(viewModel){
-//                refresh.observe(viewLifecycleOwner, Observer {
-//                    val parts: List<String> = it.split(";")
-//                    btHeadLightSwitch.isChecked = parts[1].equals("on")
-//                    btAdditionalLightPawelsRoomSwitch.isChecked = parts[6].equals("on")
-//                    srlPawelsRoom.isRefreshing = false
-//                })
-//                initPawla.observe(viewLifecycleOwner, Observer {
-//                    val parts: List<String> = it.split(";")
-//                    btHeadLightSwitch.isChecked = parts[1].equals("on")
-//                    btAdditionalLightPawelsRoomSwitch.isChecked = parts[6].equals("on")
-//                    ivAdditionalLightCardView.setBackgroundColor(Color.rgb(parts[3].toInt(),parts[4].toInt(),parts[5].toInt()))
-//                })
-//                configLedRGB.observe(viewLifecycleOwner, Observer {
-//
-//                })
-//                configOnOff.observe(viewLifecycleOwner, Observer {
-//
-//                })
-//            }
-//
-//            btHeadLightSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
-//                if(isChecked){
-//                    ivHeadLightCardView.setImageResource(R.drawable.lampv2on)
-//                    if(btHeadLightSwitch.isPressed){
-//                        udpServices.sendWithResult("turn;${sendingHlID};on",context)
-//                        //UdpServices().sendWithoutRespond("turn;${sendingHlID};on",context)
-//                    }
-//                }else if(!isChecked && btHeadLightSwitch.isPressed){
-//                    ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
-//                    if(btHeadLightSwitch.isPressed){
-//                        UdpServices().sendWithoutRespond("turn;${sendingHlID};off",context)
-//                    }
-//                }
-//            }
-//
-//            udpServices.result.observe(viewLifecycleOwner, Observer { Toast.makeText(context,it.toString(),Toast.LENGTH_LONG).show() })
-//
-//            btAdditionalLightPawelsRoomSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
-//                if(isChecked && btAdditionalLightPawelsRoomSwitch.isPressed){
-//                        UdpServices().sendWithoutRespond("turn;${sendingAlIDN};on",context)
-//                }else if(!isChecked && btAdditionalLightPawelsRoomSwitch.isPressed){
-//                    UdpServices().sendWithoutRespond("turn;${sendingAlIDN};off",context)
-//                }
-//            }
-//
-//
-//            additionalLightWhiteButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.WHITE)
-//                UdpServices().sendWithoutRespond("set;${sendingAlIDN};255;255;255",context)
-//            }
-//            additionalLightRedButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.RED)
-//                UdpServices().sendWithoutRespond("set;${sendingAlIDN};255;0;0",context)}
-//            additionalLightGreenButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.GREEN)
-//                UdpServices().sendWithoutRespond("set;${sendingAlIDN};0;255;0",context)}
-//            additionalLightBlueButton.setOnClickListener { ivAdditionalLightCardView.setBackgroundColor(Color.BLUE)
-//                UdpServices().sendWithoutRespond("set;${sendingAlIDN};0;0;255",context)}
-//            additionalLightCustomButton.setOnClickListener {
-//                val color = sharedPreferences?.getString(sendingAlIDN,Color.WHITE.toString()).toString().toInt()
-//                ivAdditionalLightCardView.setBackgroundColor(sharedPreferences?.getString(sendingAlIDN,Color.WHITE.toString()).toString().toInt())
-//                UdpServices().sendWithoutRespond("set;${sendingAlIDN};${color.red};${color.green};${color.blue}",context)}
-//
-//            btAdditionalLightCardViewExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
-//                if(isChecked){
-//                    contentAdditionalLightCardView.visibility = View.VISIBLE
-//                    TransitionManager.beginDelayedTransition(cvAdditionalLight, AutoTransition())
-//                }else{
-//                    contentAdditionalLightCardView.visibility = View.GONE
-//                    TransitionManager.beginDelayedTransition(cvAdditionalLight, AutoTransition())
-//                }
-//            }
         }
     }
 
-    @SuppressLint("CheckResult")
-    @InternalCoroutinesApi
-    private fun connection(roomName:String) {
-//            val stompClient: StompClient = Stomp.over(
-//                Stomp.ConnectionProvider.OKHTTP,
-//                "ws://192.168.2.174:9999/mywebsocket/websocket"
-//            )
-
-            stompClient.withServerHeartbeat(10000)
-            stompClient.topic("/topic/test")
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
-                .subscribe({
-                    viewModel.receive(it.payload.toString())
-                    //Toast.makeText(context, it.payload.toString(), Toast.LENGTH_LONG).show()
-
-                }, { t: Throwable? ->
-                    viewModel.receive(t.toString())
-                })
-
-        stompClient.topic("/room/${roomName}")
+    private fun subscription(roomName: String){
+        disposable = stompClient.topic("/room/${roomName}")
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
             .subscribe({
@@ -259,6 +157,19 @@ class PawelsRoomFragment : DaggerFragment() {
             }, { t: Throwable? ->
 
             })
+        compositeDisposable?.add(disposable)
+    }
+
+    private fun resetSubscription(){
+        compositeDisposable?.dispose()
+        compositeDisposable = CompositeDisposable()
+    }
+
+    @SuppressLint("CheckResult")
+    @InternalCoroutinesApi
+    private fun connection() {
+
+            stompClient.withServerHeartbeat(10000)
 
         stompClient.connect()
         stompClient.lifecycle()
@@ -279,13 +190,6 @@ class PawelsRoomFragment : DaggerFragment() {
                 }, { t: Throwable ->
                     viewModel.receive(t.toString())
                 })
-            stompClient.send("/app/type","bbbb")
-                .unsubscribeOn(Schedulers.newThread())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-
-
     }
 
 }

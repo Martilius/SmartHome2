@@ -2,11 +2,11 @@ package com.martilius.smarthome
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.ShapeDrawable
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
 import android.transition.AutoTransition
 import android.transition.TransitionManager
 import android.view.*
@@ -14,43 +14,34 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
-import com.google.android.material.navigation.NavigationView
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.core.view.forEach
 import androidx.core.widget.addTextChangedListener
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
-import com.google.gson.Gson
-import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.navigation.NavigationView
 import com.martilius.smarthome.Service.CustomAdapter
 import com.martilius.smarthome.adapters.NewDeviceAdapter
-import com.martilius.smarthome.models.*
+import com.martilius.smarthome.models.DeviceType
+import com.martilius.smarthome.models.NewDevice
+import com.martilius.smarthome.models.RoomModelRespond
+import com.martilius.smarthome.models.RoomTypes
 import dagger.android.support.DaggerAppCompatActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adding_devices_dialog.view.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.room_adding_dialog.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
-import org.json.JSONArray
-import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
-import ua.naiksoftware.stomp.dto.LifecycleEvent
-import java.lang.reflect.Type
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -62,7 +53,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     private val newDeviceAdapter by lazy {
-        NewDeviceAdapter{
+        NewDeviceAdapter {
 
         }
     }
@@ -81,11 +72,12 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
-        val toggle = ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.bbbb,R.string.bbbb)
-        lateinit var  deviceTypes: List<DeviceType>
+        val toggle =
+            ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.bbbb, R.string.bbbb)
+        lateinit var deviceTypes: List<DeviceType>
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        viewModel.connection(stompClient,navView)
+        viewModel.connection(stompClient, navView, applicationContext)
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_settings -> {
@@ -107,13 +99,15 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 roomsList.add(it.title.toString())
             }
             roomsList.remove(roomsList.last())
-            val roomsAdapter = ArrayAdapter<String>(this, R.layout.dropdown_menu_item,roomsList)
-            val deviceTypeAdapter = ArrayAdapter<String>(this, R.layout.dropdown_menu_item,deviceTypeList)
+            val roomsAdapter = ArrayAdapter<String>(this, R.layout.dropdown_menu_item, roomsList)
+            val deviceTypeAdapter =
+                ArrayAdapter<String>(this, R.layout.dropdown_menu_item, deviceTypeList)
             val dialogView = LayoutInflater.from(this).inflate(R.layout.adding_devices_dialog, null)
+
 
             dialogView.roomAutoCompleteTextView.setAdapter(roomsAdapter)
             dialogView.deviceTypeAutoCompleteTextView.setAdapter(deviceTypeAdapter)
-            dialogView.roomAutoCompleteTextView.setText(supportActionBar?.title,false)
+            dialogView.roomAutoCompleteTextView.setText(supportActionBar?.title, false)
             dialogView.rvNewDevice.adapter = newDeviceAdapter
             val dialog = Dialog(this)
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -121,31 +115,47 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             dialog.setContentView(dialogView)
             dialog.show()
             dialogView.btCancelAddDevice.setOnClickListener { dialog.dismiss() }
-            dialogView.btAddDevice.setOnClickListener { dialog.dismiss()
-                if(newDeviceAdapter.getSelected()!=-1){
-                    val selected =  newDeviceAdapter.currentList.get(newDeviceAdapter.getSelected())
-                    Toast.makeText(applicationContext,selected.ip,Toast.LENGTH_LONG).show()
+            dialogView.btAddDevice.setOnClickListener {
+                dialog.dismiss()
+                if (newDeviceAdapter.getSelected() != -1) {
+                    val selected = newDeviceAdapter.currentList.get(newDeviceAdapter.getSelected())
+                    Toast.makeText(applicationContext, selected.ip, Toast.LENGTH_LONG).show()
                 }
             }
-            newDeviceAdapter.submitList(listOf(NewDevice(id = 1,ip = "192.168.1.1"),NewDevice(id = 2,ip = "192.168.2.2")))
+            newDeviceAdapter.submitList(
+                listOf(
+                    NewDevice(id = 1, ip = "192.168.1.1"),
+                    NewDevice(id = 2, ip = "192.168.2.2")
+                )
+            )
         }
 
         with(viewModel) {
             menuList.observe(this@MainActivity, Observer {
-            navView.menu.clear()
-            it.forEach {
-                navView.menu.add(it.roomName).setIcon(getDrawable(R.drawable.living_room)).isCheckable = true
-            }
+                navView.menu.clear()
+                it.forEach {
+                    navView.menu.add(it.roomName)
+                        .setIcon(getDrawable(it.roomType.res)).isCheckable = true
+                }
                 viewModel.changeTitle(navView.menu.children.first().title.toString())
-                navView.menu.add("add").icon =  getDrawable(R.drawable.ic_baseline_add_24)
+                navView.menu.add("add").icon = getDrawable(R.drawable.ic_baseline_add_24)
                 navView.setNavigationItemSelectedListener(this@MainActivity)
                 visibilityNavElements(navController, navView)
                 onNavigationItemSelected(navView.menu.getItem(0))
             })
+            menuListNull.observe(this@MainActivity, Observer {
+                navView.menu.clear()
+                navView.menu.add("add").icon = getDrawable(R.drawable.ic_baseline_add_24)
+                viewModel.changeTitle(navView.menu.children.first().title.toString())
+                navView.setNavigationItemSelectedListener(this@MainActivity)
+                visibilityNavElements(navController, navView)
+                //onNavigationItemSelected(navView.menu.getItem(0))
+            })
             roomCountChanged.observe(this@MainActivity, Observer {
                 navView.menu.clear()
                 it.forEach {
-                    navView.menu.add(it.roomName).isCheckable = true
+                    navView.menu.add(it.roomName)
+                        .setIcon(getDrawable(it.roomType.res)).isCheckable = true
                 }
                 navView.menu.add("add").icon = getDrawable(R.drawable.ic_baseline_add_24)
             })
@@ -213,7 +223,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        if(item.title.equals("add")){
+        if (item.title.equals("add")) {
             val dialogView = LayoutInflater.from(this).inflate(R.layout.room_adding_dialog, null)
             val dialog = Dialog(this)
             dialog.setTitle("Add room")
@@ -221,23 +231,31 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             dialog.setContentView(dialogView)
             dialog.show()
 
-            val adapter :ArrayList<RoomTypes> = ArrayList()
+            val adapter: ArrayList<RoomTypes> = ArrayList()
 
-            adapter.add(RoomTypes.BATHROOM)
             adapter.add(RoomTypes.LIVING_ROOM)
+            adapter.add(RoomTypes.BATHROOM)
             adapter.add(RoomTypes.BEDROOM)
             adapter.add(RoomTypes.GARAGE)
             adapter.add(RoomTypes.KITCHEN)
             adapter.add(RoomTypes.LIBRARY)
 
-            val adapterDone = CustomAdapter(applicationContext,R.layout.dropdown_menu_drawable,adapter)
-           // dialogView.addRoomAutoCompleteTextView.setAdapter(adapterDone)
+            val adapterDone =
+                CustomAdapter(applicationContext, R.layout.dropdown_menu_drawable, adapter)
+            // dialogView.addRoomAutoCompleteTextView.setAdapter(adapterDone)
             dialogView.spinner.adapter = adapterDone
             dialogView.btAddRoom.setOnClickListener {
-                if(dialogView.etRoomName.text.isNullOrEmpty()){
-                    dialogView.roomNameTextField.error="cant be empty"
-                }else{
-                    viewModel.sendViaWebSocket(stompClient, dialogView.etRoomName)
+                if (dialogView.etRoomName.text.isNullOrEmpty()) {
+                    dialogView.roomNameTextField.error = "cant be empty"
+                } else {
+                    viewModel.sendViaWebSocket(
+                        stompClient,
+                        RoomModelRespond(
+                            dialogView.etRoomName.text.toString(),
+                            adapterDone.getItem(dialogView.spinner.selectedItemPosition).toString()
+                        )
+                    )
+                    println(adapterDone.getItem(dialogView.spinner.selectedItemPosition).toString())
                     dialog.dismiss()
                 }
             }
@@ -246,11 +264,11 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             }
             dialogView.btAddRoomCancel.setOnClickListener { dialog.dismiss() }
 
-        }else{
+        } else {
             viewModel.changeTitle(item.title.toString())
-            supportActionBar?.title =item.title
+            supportActionBar?.title = item.title
             drawer_layout.close()
-            TransitionManager.beginDelayedTransition(drawer_layout,AutoTransition())
+            TransitionManager.beginDelayedTransition(drawer_layout, AutoTransition())
         }
 
         return true

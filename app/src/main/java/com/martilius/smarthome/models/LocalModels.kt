@@ -44,7 +44,8 @@ data class Respond(
 data class Rooms(
     @PrimaryKey
     @SerializedName("id") val id: Int,
-    @SerializedName("room") val roomName: String
+    @SerializedName("room") val roomName: String,
+    @SerializedName("room_type") val roomType:RoomTypes
 )
 
 data class DeviceType(
@@ -63,16 +64,22 @@ data class RoomsResponse(
     val bla : List<Rooms>
 )
 
-data class CustomItem(
-    val title:String,
-    val view:Int
+data class RoomModelRespond(
+    val room:String,
+    val room_type:String
 )
 
 enum class RoomTypes(val res:Int){
+    @SerializedName("BATHROOM")
     BATHROOM(R.drawable.bathroom),
+    @SerializedName("LIVING_ROOM")
     LIVING_ROOM(R.drawable.living_room),
+    @SerializedName("BEDROOM")
     BEDROOM(R.drawable.bedroom),
+    @SerializedName("GARAGE")
     GARAGE(R.drawable.garage),
+    @SerializedName("KITCHEN")
     KITCHEN(R.drawable.kitchen),
+    @SerializedName("LIBRARY")
     LIBRARY(R.drawable.library)
 }

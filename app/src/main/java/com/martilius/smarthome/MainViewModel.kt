@@ -5,6 +5,11 @@ import android.app.ActionBar
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.media.browse.MediaBrowser
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.view.LayoutInflater
 import android.view.Window
 import android.widget.ArrayAdapter
@@ -21,6 +26,7 @@ import com.google.gson.reflect.TypeToken
 import com.martilius.smarthome.adapters.NewDeviceAdapter
 import com.martilius.smarthome.models.DeviceType
 import com.martilius.smarthome.models.NewDevice
+import com.martilius.smarthome.models.RoomModelRespond
 import com.martilius.smarthome.models.Rooms
 import com.martilius.smarthome.repository.Repository
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -41,6 +47,7 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
     val roomCountChanged = MutableLiveData<List<Rooms>>()
     val deviceTypeResponse = MutableLiveData<List<DeviceType>>()
     val checkResponse = MutableLiveData<String>()
+    val menuListNull = MutableLiveData<Boolean>()
 
 
     init {
@@ -48,6 +55,8 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
             val findRoomsRespond = repository.findRooms()
             if(!findRoomsRespond.isNullOrEmpty()){
                 menuList.postValue(findRoomsRespond)
+            }else{
+                menuListNull.postValue(true)
             }
             val findDeviceTypeRespond = repository.findDeviceType()
             if(!findDeviceTypeRespond.isNullOrEmpty()){
@@ -60,16 +69,6 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
         newTitle.value = title
     }
 
-
-//    fun RoomCountChanged(roomName:String){
-//        viewModelScope.launch {
-//            val result = repository.addRoom(roomName)
-//            if (result.respond.equals("added")){
-//                roomAdded.postValue(roomName)
-//            }
-//        }
-//
-//    }
 
     fun check(bla:String){
         checkResponse.postValue(bla)
@@ -99,27 +98,10 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
 
     @SuppressLint("CheckResult")
     @InternalCoroutinesApi
-    fun connection(stompClient: StompClient, navView: NavigationView) {
-//            val stompClient: StompClient = Stomp.over(
-//                Stomp.ConnectionProvider.OKHTTP,
-//                "ws://192.168.2.174:9999/mywebsocket/websocket"
-//            )
+    fun connection(stompClient: StompClient, navView: NavigationView, context:Context) {
 
         stompClient.withServerHeartbeat(10000)
-        stompClient.topic("/rooms/change")
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.computation())
-            .subscribe({
-                val arrayType = object : TypeToken<List<Rooms>>() {}.type
-                val received: List<Rooms> = Gson().fromJson(it.payload, arrayType)
-                postRooms(received,navView)
-
-                //  viewModel.receive(it.payload.toString())
-                //Toast.makeText(context, it.payload.toString(), Toast.LENGTH_LONG).show()
-
-            }, { t: Throwable? ->
-                //  viewModel.receive(t.toString())
-            })
+        subscribeRoomsChange(stompClient,navView)
         stompClient.connect()
         stompClient.lifecycle()
             .subscribeOn(Schedulers.io())
@@ -134,7 +116,22 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
                         //  viewModel.receive(it.type.name)
                     }
                     LifecycleEvent.Type.CLOSED -> {
-                        //   viewModel.receive(it.type.name)
+                        val connectivityManager =
+                            context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                        val networkRequest = NetworkRequest.Builder()
+                            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                            .build()
+                        var networkCallback = object : ConnectivityManager.NetworkCallback() {
+                            override fun onAvailable(network: Network) {
+                                subscribeRoomsChange(stompClient,navView)
+                                stompClient.connect()
+                                connectivityManager.unregisterNetworkCallback(this)
+                            }
+
+                        }
+
+
+                        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
                     }
                 }
             }, { t: Throwable ->
@@ -144,48 +141,31 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
 
     }
 
-    fun sendViaWebSocket(stompClient: StompClient, editText: EditText){
-        stompClient.send("/rooms/add",editText.text.toString())
+    fun sendViaWebSocket(stompClient: StompClient, roomModelRespond: RoomModelRespond){
+        stompClient.send("/rooms/add", Gson().toJson(roomModelRespond))
             .unsubscribeOn(Schedulers.newThread())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe()
     }
 
-    fun addDeviceDialog(deviceTypes: List<DeviceType>, navView: NavigationView, context: Context, actionBar: ActionBar, newDeviceAdapter: NewDeviceAdapter ){
-        var roomsList = mutableListOf<String>()
-        var deviceTypeList = mutableListOf<String>()
-        deviceTypes.forEach {
-            deviceTypeList.add(it.deviceType.toString())
-        }
-        navView.menu.forEach {
-            roomsList.add(it.title.toString())
-        }
-        roomsList.remove(roomsList.last())
-        val roomsAdapter = ArrayAdapter<String>(context, R.layout.dropdown_menu_item,roomsList)
-        val deviceTypeAdapter = ArrayAdapter<String>(context, R.layout.dropdown_menu_item,deviceTypeList)
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.adding_devices_dialog, null)
+    fun subscribeRoomsChange(stompClient: StompClient, navView: NavigationView){
+        stompClient.topic("/rooms/change")
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
+            .subscribe({
+                val arrayType = object : TypeToken<List<Rooms>>() {}.type
+                val received: List<Rooms> = Gson().fromJson(it.payload, arrayType)
+                postRooms(received,navView)
 
-        dialogView.roomAutoCompleteTextView.setAdapter(roomsAdapter)
-        dialogView.deviceTypeAutoCompleteTextView.setAdapter(deviceTypeAdapter)
-        dialogView.roomAutoCompleteTextView.setText(actionBar.title,false)
-        dialogView.rvNewDevice.adapter = newDeviceAdapter
-        val dialog = Dialog(context)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(true)
-        dialog.setContentView(dialogView)
-        dialog.show()
-        dialogView.btCancelAddDevice.setOnClickListener { dialog.dismiss() }
-        dialogView.btAddDevice.setOnClickListener { dialog.dismiss()
-            if(newDeviceAdapter.getSelected()!=-1){
-                val selected =  newDeviceAdapter.currentList.get(newDeviceAdapter.getSelected())
-                Toast.makeText(context,selected.ip, Toast.LENGTH_LONG).show()
-            }
-        }
-        newDeviceAdapter.submitList(listOf(
-            NewDevice(id = 1,ip = "192.168.1.1"),
-            NewDevice(id = 2,ip = "192.168.2.2")
-        ))
+                //  viewModel.receive(it.payload.toString())
+                //Toast.makeText(context, it.payload.toString(), Toast.LENGTH_LONG).show()
+
+            }, { t: Throwable? ->
+                //  viewModel.receive(t.toString())
+            })
     }
+
+
 
 }
