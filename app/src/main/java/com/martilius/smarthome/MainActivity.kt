@@ -239,20 +239,27 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             })
             roomCountChanged.observe(this@MainActivity, Observer {
                 navView.menu.clear()
+                var increment: Int = 1
                 if(sharedPreference.getBoolean("admin",false)){
-                    it.forEach { room ->
-                        navView.menu.add(room.roomName)
+                    it.forEach {room->
+                        navView.menu.add(R.id.firstGroup, increment,increment*100, room.roomName)
                             .setIcon(getDrawable(room.roomType.res)).isCheckable = true
+                        increment++
                     }
                 }else{
                     it.forEach {room->
                         if(!room.admin){
-                            navView.menu.add(room.roomName)
+                            navView.menu.add(R.id.firstGroup, increment,increment*100, room.roomName)
                                 .setIcon(getDrawable(room.roomType.res)).isCheckable = true
+                            increment++
                         }
                     }
                 }
-                navView.menu.add("add").icon = getDrawable(R.drawable.ic_baseline_add_24)
+                navView.menu.setGroupCheckable(R.id.firstGroup, true,true)
+                navView.menu.add(R.id.firstGroup,increment, increment*100,"add").icon = getDrawable(R.drawable.ic_baseline_add_24)
+                navView.menu.add(R.id.secondGroup, increment+1, (increment+1)*100,"Settings").icon = getDrawable(R.drawable.ic_baseline_settings_24)
+                navView.menu.setGroupCheckable(R.id.secondGroup, true, true)
+                navView.setCheckedItem(navView.menu.getItem(checkPosition(navView,fragmentTitle.text.toString())))
             })
 
             deviceTypeResponse.observe(this@MainActivity, Observer {
