@@ -48,6 +48,7 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
     val deviceTypeResponse = MutableLiveData<List<DeviceType>>()
     val checkResponse = MutableLiveData<String>()
     val menuListNull = MutableLiveData<Boolean>()
+    val deviceIp = MutableLiveData<String>()
 
 
     init {
@@ -148,6 +149,13 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe()
     }
+    fun sendNewDeviceViaWebSocket(stompClient: StompClient, destionation:String ){
+        stompClient.send(destionation)
+            .unsubscribeOn(Schedulers.newThread())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
+    }
 
     fun subscribeRoomsChange(stompClient: StompClient, navView: NavigationView){
         stompClient.topic("/rooms/change")
@@ -163,6 +171,21 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
 
             }, { t: Throwable? ->
                 //  viewModel.receive(t.toString())
+            })
+        stompClient.topic("/device/newDevice")
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
+            .subscribe({
+//                if(devicesList.contains(it.payload.toString())){
+//
+//                }else{
+//                    devicesList.add(it.payload.toString())
+//                    newDeviceAdapter.submitList(devicesList)
+//                }
+                deviceIp.postValue(it.payload.toString())
+
+            }, { t: Throwable? ->
+
             })
     }
 

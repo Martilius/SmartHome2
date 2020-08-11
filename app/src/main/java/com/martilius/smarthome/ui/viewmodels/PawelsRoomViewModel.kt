@@ -120,6 +120,8 @@ val receivedMessage = MutableLiveData<String>()
         }
     }
 
+
+
 //    init {
 //        SendWithResult(context.getString(R.string.pawla_init), initPawla)
 //    }

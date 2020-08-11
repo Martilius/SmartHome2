@@ -2,6 +2,10 @@ package com.martilius.smarthome.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -82,21 +86,6 @@ class PawelsRoomFragment : DaggerFragment() {
             enterTransition = MaterialFadeThrough().setDuration(500L)
             exitTransition = MaterialFadeThrough().setDuration(500L)
             val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE)
-            lateinit var roomTitle:String
-            //val request = Request.Builder().url("ws://localhost:8080/myWebServer").build()
-            //val listener = EchoServer();
-            //val ws = OkHttpClient().newWebSocket(request,listener)
-            //createWebSocketClient()
-            //val stomp = StompClient()
-
-
-            testButton.setOnClickListener {
-                stompClient.send("/app/type","bbbb")
-                    .unsubscribeOn(Schedulers.newThread())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe()
-            }
 
             rvLedLight.adapter = ledAdapter
             rvHeadLight.adapter = headLightAdapter
@@ -127,7 +116,7 @@ class PawelsRoomFragment : DaggerFragment() {
                     }
                 })
                 receivedMessage.observe(viewLifecycleOwner, Observer {
-                    test.text = it.toString()
+                    println(it.toString())
                 })
             }
             val mainViewModel =
@@ -136,10 +125,9 @@ class PawelsRoomFragment : DaggerFragment() {
             with(mainViewModel) {
                 newTitle.observe(viewLifecycleOwner, Observer {
                     viewModel.findDevices(it)
-                    roomTitle = it
                     resetSubscription()
                     subscription(it)
-                    connection()
+                    connection(it)
                     //Toast.makeText(context, it.toString(), Toast.LENGTH_LONG).show()
                 })
             }
@@ -167,12 +155,12 @@ class PawelsRoomFragment : DaggerFragment() {
 
     @SuppressLint("CheckResult")
     @InternalCoroutinesApi
-    private fun connection() {
+    private fun connection(roomName: String) {
 
             stompClient.withServerHeartbeat(10000)
 
         stompClient.connect()
-        stompClient.lifecycle()
+        compositeDisposable?.add(stompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .subscribe({
@@ -184,12 +172,29 @@ class PawelsRoomFragment : DaggerFragment() {
                             viewModel.receive(it.type.name)
                         }
                         LifecycleEvent.Type.CLOSED -> {
-                            viewModel.receive(it.type.name)
+                            val connectivityManager =
+                                context?.applicationContext?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                            val networkRequest = NetworkRequest.Builder()
+                                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                                .build()
+                            var networkCallback = object : ConnectivityManager.NetworkCallback() {
+                                override fun onAvailable(network: Network) {
+                                    subscription(roomName)
+                                    stompClient.connect()
+                                    viewModel.findDevices(roomName)
+                                    connectivityManager.unregisterNetworkCallback(this)
+                                }
+
+                            }
+
+
+                            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
                         }
                     }
                 }, { t: Throwable ->
                     viewModel.receive(t.toString())
-                })
+                }))
+
     }
 
 }

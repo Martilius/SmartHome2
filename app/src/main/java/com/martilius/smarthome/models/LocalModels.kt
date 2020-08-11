@@ -38,14 +38,16 @@ data class findDevicesConfigurationResponse(
 
 data class Respond(
     @PrimaryKey
-    @SerializedName("respond") val respond:String
+    @SerializedName("respond") val respond:String,
+    @SerializedName("admin") val admin:Boolean
 )
 
 data class Rooms(
     @PrimaryKey
     @SerializedName("id") val id: Int,
     @SerializedName("room") val roomName: String,
-    @SerializedName("room_type") val roomType:RoomTypes
+    @SerializedName("room_type") val roomType:RoomTypes,
+    @SerializedName("admin") val admin:Boolean
 )
 
 data class DeviceType(

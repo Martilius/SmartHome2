@@ -2,6 +2,7 @@ package com.martilius.smarthome.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Display
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import com.martilius.smarthome.R
 import com.martilius.smarthome.ui.viewmodels.LoginViewModel
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.login_fragment.view.*
+import java.security.PrivateKey
 import javax.inject.Inject
 
 class LoginFragment : DaggerFragment() {
@@ -30,6 +32,7 @@ class LoginFragment : DaggerFragment() {
         return inflater.inflate(R.layout.login_fragment, container, false).apply {
             enterTransition = MaterialFadeThrough().setDuration(500L)
             exitTransition = MaterialFadeThrough().setDuration(500L)
+            val sharedPreferences = activity?.getSharedPreferences("userInfo",Context.MODE_PRIVATE)
             btLogin.setOnClickListener {
                 if(!etLogin.text.isNullOrEmpty() && !etPassword.text.isNullOrEmpty()){
                     viewModel.login(etLogin.text.toString(), etPassword.text.toString())
@@ -81,6 +84,12 @@ class LoginFragment : DaggerFragment() {
                     }else if(it.respond.equals("wrong password")){
                         passwordTextField.error = it.respond
                     }else if(it.respond.equals("logged")){
+                        sharedPreferences?.edit()?.putBoolean("logged",true)?.apply()
+                        if (it.admin.equals(true)){
+                            sharedPreferences?.edit()?.putBoolean("admin", true)?.apply()
+                        }else{
+                            sharedPreferences?.edit()?.putBoolean("admin", false)?.apply()
+                        }
                         findNavController().navigate(R.id.action_loginFragment_to_nav_home)
                     }
                     //Toast.makeText(context, it.respond, Toast.LENGTH_LONG).show()

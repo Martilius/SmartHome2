@@ -24,17 +24,17 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class NewDeviceAdapter(
-    private val listener: (NewDevice) -> Unit
-) : ListAdapter<NewDevice, NewDeviceAdapter.NewDeviceViewHolder>(DIFF_CALLBACK) {
+    private val listener: (String) -> Unit
+) : ListAdapter<String, NewDeviceAdapter.NewDeviceViewHolder>(DIFF_CALLBACK) {
 
     var selectedPosition = -1
-    lateinit var selectedDevice:NewDevice
+    lateinit var selectedDevice:String
 
 
     inner class NewDeviceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(item: NewDevice, listener: (NewDevice) -> Unit) {
+        fun bind(item: String, listener: (String) -> Unit) {
             itemView.apply {
-                tvItemAddDevice.text = item.ip
+                tvItemAddDevice.text = item
                 setOnClickListener { listener(item) }
 //                if(ivItemAddDevice.visibility.equals(View.GONE)){
 //                    ivItemAddDevice.visibility= View.VISIBLE
@@ -101,12 +101,12 @@ class NewDeviceAdapter(
 
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<NewDevice>() {
-            override fun areItemsTheSame(oldItem: NewDevice, newItem: NewDevice) =
-                oldItem.ip == newItem.ip
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
+            override fun areItemsTheSame(oldItem: String, newItem: String) =
+                oldItem == newItem
 
             @SuppressLint("DiffUtilEquals")
-            override fun areContentsTheSame(oldItem: NewDevice, newItem: NewDevice) =
+            override fun areContentsTheSame(oldItem: String, newItem: String) =
                 oldItem == newItem
         }
     }
