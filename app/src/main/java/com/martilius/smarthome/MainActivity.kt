@@ -58,6 +58,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     private val viewModel by viewModels<MainViewModel> { factory }
     var title : String? = null
     private lateinit var appBarConfiguration: AppBarConfiguration
+    var position:Int = 0
 
     private val newDeviceAdapter by lazy {
         NewDeviceAdapter {
@@ -200,27 +201,33 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         with(viewModel) {
             menuList.observe(this@MainActivity, Observer { it ->
                 navView.menu.clear()
+                var increment: Int = 1
                 if(sharedPreference.getBoolean("admin",false)){
                     it.forEach {room->
-                        navView.menu.add(room.roomName)
+                        navView.menu.add(R.id.firstGroup, increment,increment*100, room.roomName)
                             .setIcon(getDrawable(room.roomType.res)).isCheckable = true
+                        increment++
                     }
                 }else{
                     it.forEach {room->
                         if(!room.admin){
-                            navView.menu.add(room.roomName)
+                            navView.menu.add(R.id.firstGroup, increment,increment*100, room.roomName)
                                 .setIcon(getDrawable(room.roomType.res)).isCheckable = true
+                            increment++
                         }
                     }
                 }
+                navView.menu.setGroupCheckable(R.id.firstGroup, true,true)
 
                 viewModel.changeTitle(navView.menu.children.first().title.toString())
-                navView.menu.add("add").icon = getDrawable(R.drawable.ic_baseline_add_24)
-                navView.menu
+                navView.menu.add(R.id.firstGroup,increment,increment*100,"add").icon = getDrawable(R.drawable.ic_baseline_add_24)
+                navView.menu.add(R.id.secondGroup, increment+1, (increment+1)*100,"Settings").icon = getDrawable(R.drawable.ic_baseline_settings_24)
+                //navView.menu.setGroupCheckable(R.id.secondGroup, false,false)
+                navView.menu.setGroupCheckable(R.id.secondGroup, true, true)
                 navView.setNavigationItemSelectedListener(this@MainActivity)
                 visibilityNavElements(navController, navView, toggle)
                 onNavigationItemSelected(navView.menu.getItem(0))
-
+                //navView.setCheckedItem(navView.menu.getItem(2))
             })
             menuListNull.observe(this@MainActivity, Observer {
                 navView.menu.clear()
@@ -287,6 +294,11 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     toggle?.syncState()
                     if(!title.isNullOrEmpty()){
                         fragmentTitle.text = title
+                        //Toast.makeText(applicationContext,checkPosition(navView,title.toString()).toString() , Toast.LENGTH_SHORT).show()
+                        //val pos:Int = checkPosition(navView,title.toString())
+                        navView.setCheckedItem(navView.menu.getItem(checkPosition(navView,title.toString())))
+                    }else{
+                        navView.setCheckedItem(navView.menu.getItem(0))
                     }
                 }
                 R.id.nav_settings->{
@@ -322,6 +334,11 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 //        menuInflater.inflate(R.menu.main, menu)
 //        return true
 //    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Toast.makeText(applicationContext, item.title, Toast.LENGTH_SHORT).show()
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
@@ -371,14 +388,31 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             }
             dialogView.btAddRoomCancel.setOnClickListener { dialog.dismiss() }
 
+        }else if(item.title.equals("Settings")){
+            findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
+            nav_view.setCheckedItem(nav_view.menu.getItem(checkPosition(nav_view,"Settings")))
         } else {
             viewModel.changeTitle(item.title.toString())
             fragmentTitle.text = item.title
             drawer_layout.close()
             TransitionManager.beginDelayedTransition(drawer_layout, AutoTransition())
+           // Toast.makeText(applicationContext,nav_view.checkedItem?.title.toString(),Toast.LENGTH_LONG).show()
+
         }
 
         return true
+    }
+
+    fun checkPosition(navView: NavigationView, title:String):Int{
+        var pos = 0
+        navView.menu.forEach {
+            if(it.title.equals(title)){
+                return pos
+            }else{
+                pos++
+            }
+        }
+        return 0
     }
 
 
