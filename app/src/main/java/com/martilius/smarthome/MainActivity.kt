@@ -303,7 +303,12 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                         fragmentTitle.text = title
                         //Toast.makeText(applicationContext,checkPosition(navView,title.toString()).toString() , Toast.LENGTH_SHORT).show()
                         //val pos:Int = checkPosition(navView,title.toString())
-                        navView.setCheckedItem(navView.menu.getItem(checkPosition(navView,title.toString())))
+                        if(checkPosition(navView,title.toString())==-1){
+                            onNavigationItemSelected(navView.menu.getItem(0))
+                            navView.setCheckedItem(navView.menu.getItem(0))
+                        }else{
+                            navView.setCheckedItem(navView.menu.getItem(checkPosition(navView,title.toString())))
+                        }
                     }else{
                         navView.setCheckedItem(navView.menu.getItem(0))
                     }
@@ -398,6 +403,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         }else if(item.title.equals("Settings")){
             findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
             nav_view.setCheckedItem(nav_view.menu.getItem(checkPosition(nav_view,"Settings")))
+            stompClient.disconnect()
         } else {
             viewModel.changeTitle(item.title.toString())
             fragmentTitle.text = item.title
@@ -419,7 +425,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 pos++
             }
         }
-        return 0
+        return -1
     }
 
 

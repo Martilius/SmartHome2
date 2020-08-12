@@ -143,18 +143,22 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
     }
 
     fun sendViaWebSocket(stompClient: StompClient, roomModelRespond: RoomModelRespond){
-        stompClient.send("/rooms/add", Gson().toJson(roomModelRespond))
+        stompClient.send("/rooms/addRoom", Gson().toJson(roomModelRespond))
             .unsubscribeOn(Schedulers.newThread())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+            .subscribe({},{t:Throwable->
+
+            })
     }
     fun sendNewDeviceViaWebSocket(stompClient: StompClient, destionation:String ){
         stompClient.send(destionation)
             .unsubscribeOn(Schedulers.newThread())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+            .subscribe({},{t:Throwable->
+
+            })
     }
 
     fun subscribeRoomsChange(stompClient: StompClient, navView: NavigationView){
