@@ -14,6 +14,9 @@ interface ConfigurationService {
             @Query("room") room: String
     ): List<Configuration>
 
+    @GET("find")
+    suspend fun findAllDevices():List<Configuration>
+
     @PUT("changeState")
     suspend fun changeState(
         @Query("ip") ip:String,

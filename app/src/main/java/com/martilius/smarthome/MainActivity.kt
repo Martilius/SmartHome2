@@ -321,6 +321,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
                     title = fragmentTitle.text.toString()
                     fragmentTitle.text = "Settings"
+                    fabAddDevice.visibility = View.GONE
                 }
                 else -> {
                     supportActionBar?.show()

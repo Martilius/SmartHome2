@@ -32,8 +32,21 @@ data class Configuration(
     @SerializedName("deviceType") val deviceType:String
 )
 
+data class DeviceSettings(
+    val id: Int,
+    val name : String,
+    val room : String,
+    var roomsList : List<Rooms>?
+)
+
 data class findDevicesConfigurationResponse(
     val devices: List<Configuration>
+)
+
+data class UserSettingsRespond(
+    @PrimaryKey
+    @SerializedName("login") val login:String,
+    @SerializedName("admin") val admin:Boolean
 )
 
 data class Respond(

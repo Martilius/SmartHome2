@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
 import androidx.navigation.findNavController
 import com.google.android.material.transition.MaterialFadeThrough
+import com.martilius.smarthome.MainViewModel
 import com.martilius.smarthome.R
 import com.martilius.smarthome.ui.viewmodels.LoginViewModel
 import dagger.android.support.DaggerFragment
@@ -74,6 +75,9 @@ class LoginFragment : DaggerFragment() {
                 findNavController().navigate(R.id.action_loginFragment_to_nav_home)
             }
 
+            val mainViewModel =
+                activity?.let { ViewModelProvider(it).get(MainViewModel::class.java) }!!
+
             with(viewModel){
                 testpost.observe(viewLifecycleOwner, Observer {
                     Toast.makeText(context,it.toString(),Toast.LENGTH_LONG).show()
@@ -85,11 +89,13 @@ class LoginFragment : DaggerFragment() {
                         passwordTextField.error = it.respond
                     }else if(it.respond.equals("logged")){
                         sharedPreferences?.edit()?.putBoolean("logged",true)?.apply()
+                        sharedPreferences?.edit()?.putString("login",etLogin.text.toString())?.apply()
                         if (it.admin.equals(true)){
                             sharedPreferences?.edit()?.putBoolean("admin", true)?.apply()
                         }else{
                             sharedPreferences?.edit()?.putBoolean("admin", false)?.apply()
                         }
+                        mainViewModel.init()
                         findNavController().navigate(R.id.action_loginFragment_to_nav_home)
                     }
                     //Toast.makeText(context, it.respond, Toast.LENGTH_LONG).show()

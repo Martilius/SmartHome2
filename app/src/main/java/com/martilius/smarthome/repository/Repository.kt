@@ -21,4 +21,9 @@ class Repository(
     suspend fun addRoom(roomName:String) = configurationService.addRoom(roomName)
 
     suspend fun findDeviceType() = configurationService.findDeviceType()
+
+    suspend fun getOnlyUsers() = userService.getOnlyUser()
+
+
+    suspend fun getAllDevices() = configurationService.findAllDevices()
 }

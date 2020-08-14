@@ -51,7 +51,7 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
     val deviceIp = MutableLiveData<String>()
 
 
-    init {
+    fun init() {
         viewModelScope.launch {
             val findRoomsRespond = repository.findRooms()
             if(!findRoomsRespond.isNullOrEmpty()){
@@ -65,6 +65,7 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
             }
         }
     }
+
 
     fun changeTitle(title:String){
         newTitle.value = title

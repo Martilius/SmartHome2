@@ -3,6 +3,7 @@ package com.martilius.smarthome.repository.remote
 import androidx.room.FtsOptions
 import com.martilius.smarthome.models.Configuration
 import com.martilius.smarthome.models.Respond
+import com.martilius.smarthome.models.UserSettingsRespond
 import com.martilius.smarthome.models.findDevicesConfigurationResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -20,6 +21,9 @@ interface UserService {
         @Query("login")login: String,
         @Query("password")password: String
     ):Respond
+
+    @GET("getOnlyUsers")
+    suspend fun getOnlyUser():List<UserSettingsRespond>
 
 //    @GET("volumes/{volumeId}")
 //    suspend fun findBookByID(

@@ -1,5 +1,9 @@
 package com.martilius.smarthome.Service
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.martilius.smarthome.models.Rooms
+import com.martilius.smarthome.models.UserSettingsRespond
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ua.naiksoftware.stomp.Stomp
@@ -16,6 +20,8 @@ class StompService {
         )
         stompClient.connect()
     }
+
+
 
     fun sendMessage(destination : String){
         stompClient.send(destination)
