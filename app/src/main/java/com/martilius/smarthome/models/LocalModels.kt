@@ -35,6 +35,7 @@ data class Configuration(
 data class DeviceSettings(
     val id: Int,
     val name : String,
+    val ip : String,
     val room : String,
     var roomsList : List<Rooms>?
 )

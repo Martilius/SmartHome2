@@ -25,6 +25,8 @@ class PawelsRoomViewModel @Inject constructor(
     val configAlOnOffNull = MutableLiveData<Boolean>()
 val receivedMessage = MutableLiveData<String>()
 
+    val newDeviceList = MutableLiveData<List<Configuration>>()
+
 //    init {
 //        viewModelScope.launch {
 //            val respond = repository.findConfigurationByRoom("pawla")
@@ -87,6 +89,7 @@ val receivedMessage = MutableLiveData<String>()
 
         }
     }
+
 
     fun devicesActualization(deviceList:List<Configuration>){
         val respondHL: MutableList<Configuration> = arrayListOf()

@@ -17,6 +17,7 @@ import com.martilius.smarthome.adapters.RoomSettingsAdapter
 import com.martilius.smarthome.adapters.UsersSettingsAdapter
 import com.martilius.smarthome.models.DeviceSettings
 import com.martilius.smarthome.models.Rooms
+import com.martilius.smarthome.ui.viewmodels.PawelsRoomViewModel
 import com.martilius.smarthome.ui.viewmodels.SettingsViewModel
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.activity_main.view.*
@@ -65,10 +66,7 @@ class SettingsFragment : DaggerFragment() {
             rvRoomSettings.adapter = roomSettingsAdapter
             rvUsersSettings.adapter = userSettingsAdapter
             rvDeviceSettings.adapter = deviceSettingsAdapter
-            rvRoomSettings.suppressLayout(true)
-            rvUsersSettings.suppressLayout(true)
-            rvDeviceSettings.suppressLayout(true)
-            viewModel.connection(stompClient,"/user/changeUser/change",context)
+            viewModel.connection(stompClient,"/user/changeUser/change","/room/roomCountChanged",context)
             //viewModel.connection(stompClient,roomSettingsAdapter.currentList,context)
             val thisView = this
             roomSettingsHeader.setOnClickListener {
@@ -127,10 +125,12 @@ class SettingsFragment : DaggerFragment() {
 
             with(viewModel){
                 roomsRespond.observe(viewLifecycleOwner, Observer {
+                    TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
                     roomSettingsAdapter.submitList(it)
                     roomsList = it
                 })
                 usersRespond.observe(viewLifecycleOwner, Observer {
+                    TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
                     userSettingsAdapter.submitList(it)
                 })
                 usersListChanged.observe(viewLifecycleOwner, Observer {
@@ -140,7 +140,11 @@ class SettingsFragment : DaggerFragment() {
                     it.forEach {
                         it.roomsList = roomsList
                     }
+                    TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
                     deviceSettingsAdapter.submitList(it)
+                })
+                devicesListChanged.observe(viewLifecycleOwner, Observer {
+                    checkIfDevicesAreTheSame(deviceSettingsAdapter.currentList,it)
                 })
             }
             val mainViewModel =
@@ -151,6 +155,7 @@ class SettingsFragment : DaggerFragment() {
                     roomSettingsAdapter.submitList(it)
                 })
             }
+
         }
     }
 

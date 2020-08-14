@@ -10,6 +10,7 @@ import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.ToggleButton
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
@@ -63,10 +64,20 @@ class DeviceSettingsAdapter(
         fun bind(item: DeviceSettings, listener: (DeviceSettings) -> Unit) {
             itemView.apply {
                 stomp.initial()
-
+                val roomsList: MutableList<String> = mutableListOf()
+                item.roomsList?.forEach {
+                    roomsList.add(it.roomName)
+                }
+                val roomsAdapter = ArrayAdapter<String>(this.context, R.layout.dropdown_menu_item, roomsList)
+                deviceSettingsRoomAutoComplete.setAdapter(roomsAdapter)
+                deviceSettingsRoomAutoComplete.setText(item.room)
 //                stompClient.connect()
                     deviceSettingsItemTitle.text = item.name
 
+
+                deviceSettingsDeleteButton.setOnClickListener {
+                    stomp.sendMessage("/device/deleteDevice/${item.ip}")
+                }
 
 //                roomSettingsAdminToggleButton.addOnButtonCheckedListener { group, checkedId, isChecked ->
 //                        if(isChecked&& roomSettingsAdminButton.isPressed){

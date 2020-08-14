@@ -102,6 +102,10 @@ class LoginFragment : DaggerFragment() {
                 })
                 registerRespond.observe(viewLifecycleOwner, Observer {
                     if(it.respond.equals("registered")){
+                        sharedPreferences?.edit()?.putBoolean("logged",true)?.apply()
+                        sharedPreferences?.edit()?.putBoolean("admin", false)?.apply()
+                        sharedPreferences?.edit()?.putString("login",etLogin.text.toString())?.apply()
+                        mainViewModel.init()
                         findNavController().navigate(R.id.action_loginFragment_to_nav_home)
                     }else{
                         loginTextField.error = it.respond
