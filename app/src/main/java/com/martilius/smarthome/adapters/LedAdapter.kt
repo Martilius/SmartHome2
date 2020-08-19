@@ -21,10 +21,6 @@ import kotlinx.android.synthetic.main.item_led_rgb.view.*
 class LedAdapter(
     private val listener: (Configuration) -> Unit
 ) : ListAdapter<Configuration, LedAdapter.LedViewHolder>(DIFF_CALLBACK) {
-//    val stompClient: StompClient = Stomp.over(
-//        Stomp.ConnectionProvider.OKHTTP,
-//        "ws://192.168.2.174:9999/mywebsocket/websocket"
-//    )
 
     val stomp = StompService()
 
@@ -76,20 +72,6 @@ class LedAdapter(
 
                 }
             }
-
-//            btAdditionalLightSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
-//                if (isChecked && btAdditionalLightSwitch.isPressed){
-//                    GlobalScope.launch(Dispatchers.IO) {
-//                        repository.changeState("4444","on")
-//                    }
-//                } else if(!isChecked && btAdditionalLightSwitch.isPressed){
-//                    GlobalScope.launch(Dispatchers.IO) {
-//                        repository.changeState("4444","off")
-//                    }
-//                }
-//            }
-
-
         }
         )
 

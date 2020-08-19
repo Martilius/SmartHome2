@@ -65,14 +65,15 @@ class SettingsFragment : DaggerFragment() {
     ): View? {
         return inflater.inflate(R.layout.settings_fragment, container, false).apply {
             val sharedPreferences = activity?.getSharedPreferences("userInfo", Context.MODE_PRIVATE)
-            rvRoomSettings.adapter = roomSettingsAdapter
-            rvUsersSettings.adapter = userSettingsAdapter
-            rvDeviceSettings.adapter = deviceSettingsAdapter
-            viewModel.connection(stompClient,"/user/changeUser/change","/room/roomCountChanged",context)
+
             //viewModel.connection(stompClient,roomSettingsAdapter.currentList,context)
             val thisView = this
 
             if(sharedPreferences?.getBoolean("admin",false)!!){
+                rvRoomSettings.adapter = roomSettingsAdapter
+                rvUsersSettings.adapter = userSettingsAdapter
+                rvDeviceSettings.adapter = deviceSettingsAdapter
+                viewModel.connection(stompClient,"/user/changeUser/change","/room/roomCountChanged",context)
                 viewModel.adminInit()
                 adminMaterialCard.visibility = View.VISIBLE
                 roomSettingsHeader.setOnClickListener {

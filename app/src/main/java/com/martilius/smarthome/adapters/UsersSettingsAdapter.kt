@@ -51,17 +51,10 @@ import javax.inject.Inject
 class UsersSettingsAdapter(
     private val listener: (UserSettingsRespond) -> Unit
 ) : ListAdapter<UserSettingsRespond, UsersSettingsAdapter.LedViewHolder>(DIFF_CALLBACK) {
-//    val stompClient: StompClient = Stomp.over(
-//        Stomp.ConnectionProvider.OKHTTP,
-//        "ws://192.168.2.174:9999/mywebsocket/websocket"
-//    )
-
-
 
     val stomp = StompService()
 
     inner class LedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        //val button: ToggleButton = itemView.findViewById(R.id.toggleButtonItemOnOff)
         fun bind(item: UserSettingsRespond, listener: (UserSettingsRespond) -> Unit) {
             itemView.apply {
                 stomp.initial()

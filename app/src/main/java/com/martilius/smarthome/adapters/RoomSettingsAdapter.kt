@@ -47,19 +47,13 @@ import javax.inject.Inject
 class RoomSettingsAdapter(
     private val listener: (Rooms) -> Unit
 ) : ListAdapter<Rooms, RoomSettingsAdapter.LedViewHolder>(DIFF_CALLBACK) {
-//    val stompClient: StompClient = Stomp.over(
-//        Stomp.ConnectionProvider.OKHTTP,
-//        "ws://192.168.2.174:9999/mywebsocket/websocket"
-//    )
 
     val stomp = StompService()
 
     inner class LedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        //val button: ToggleButton = itemView.findViewById(R.id.toggleButtonItemOnOff)
         fun bind(item: Rooms, listener: (Rooms) -> Unit) {
             itemView.apply {
                 stomp.initial()
-//                stompClient.connect()
                 roomSettingsItemTitle.text = item.roomName
                 if(item.admin){
                     roomSettingsAdminToggleButton.check(R.id.roomSettingsAdminButton)

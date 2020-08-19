@@ -36,11 +36,7 @@ class NewDeviceAdapter(
             itemView.apply {
                 tvItemAddDevice.text = item
                 setOnClickListener { listener(item) }
-//                if(ivItemAddDevice.visibility.equals(View.GONE)){
-//                    ivItemAddDevice.visibility= View.VISIBLE
-//                }else{
-//                    ivItemAddDevice.visibility= View.GONE
-//                }
+
                 if (selectedPosition == -1) {
                     ivItemAddDevice.visibility = View.GONE
                 } else {
@@ -85,17 +81,6 @@ class NewDeviceAdapter(
             holder.itemView.ivItemAddDevice.visibility = View.GONE
         }
 
-//        holder.itemView.item_add_info_layout.setOnClickListener {
-//            if (selectedPosition != position) {
-//                notifyItemChanged(selectedPosition)
-//                selectedPosition = position
-//                notifyItemChanged(selectedPosition)
-//            }else{
-//
-//                selectedPosition=-1
-//                notifyItemChanged(selectedPosition)
-//            }
-//        }
 
     }
 

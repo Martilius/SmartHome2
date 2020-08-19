@@ -51,12 +51,6 @@ import javax.inject.Inject
 class DeviceSettingsAdapter(
     private val listener: (DeviceSettings) -> Unit
 ) : ListAdapter<DeviceSettings, DeviceSettingsAdapter.LedViewHolder>(DIFF_CALLBACK) {
-//    val stompClient: StompClient = Stomp.over(
-//        Stomp.ConnectionProvider.OKHTTP,
-//        "ws://192.168.2.174:9999/mywebsocket/websocket"
-//    )
-
-
 
     val stomp = StompService()
 
@@ -82,6 +76,7 @@ class DeviceSettingsAdapter(
                 }
 
                 deviceSettingsRoomAutoComplete.setOnItemClickListener { adapterView, view, i, l ->
+                    stomp.sendMessage("/device/changeDeviceRoom/${item.ip}/${item.room}/${deviceSettingsRoomAutoComplete.text.toString()}")
                     Toast.makeText(context, deviceSettingsRoomAutoComplete.text.toString(), Toast.LENGTH_SHORT).show()
                 }
 

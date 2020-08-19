@@ -113,6 +113,9 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
         stompClient.lifecycle()
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
+            .doOnError {
+                println(it)
+            }
             .subscribe({
                 when (it.type) {
                     LifecycleEvent.Type.OPENED -> {
@@ -153,6 +156,9 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
             .unsubscribeOn(Schedulers.newThread())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnError {
+                println(it)
+            }
             .subscribe({},{t:Throwable->
 
             })
@@ -162,6 +168,9 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
             .unsubscribeOn(Schedulers.newThread())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnError {
+                println(it)
+            }
             .subscribe({},{t:Throwable->
 
             })
@@ -171,6 +180,9 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
         stompClient.topic("/rooms/change")
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
+            .doOnError {
+                println(it)
+            }
             .subscribe({
                 val arrayType = object : TypeToken<List<Rooms>>() {}.type
                 val received: List<Rooms> = Gson().fromJson(it.payload, arrayType)
@@ -185,6 +197,9 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
         stompClient.topic("/device/newDevice")
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
+            .doOnError {
+                println(it)
+            }
             .subscribe({
 //                if(devicesList.contains(it.payload.toString())){
 //

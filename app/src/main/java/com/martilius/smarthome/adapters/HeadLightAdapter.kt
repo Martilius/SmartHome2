@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.martilius.smarthome.R
+import com.martilius.smarthome.Service.StompService
 import com.martilius.smarthome.models.Configuration
 import com.martilius.smarthome.models.Rooms
 import com.martilius.smarthome.repository.remote.ConfigurationService
@@ -31,19 +32,16 @@ class HeadLightAdapter(
 ) : ListAdapter<Configuration, HeadLightAdapter.HeadLightViewHolder>(DIFF_CALLBACK) {
 
 
+    val stomp = StompService()
 
     inner class HeadLightViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-//        val stompClient: StompClient = Stomp.over(
-//            Stomp.ConnectionProvider.OKHTTP,
-//            "ws://192.168.2.174:9999/mywebsocket/websocket"
-//        )
-        //val button: ToggleButton = itemView.findViewById(R.id.toggleButtonItemOnOff)
         fun bind(item: Configuration, listener: (Configuration) -> Unit) {
             itemView.apply {
-                val stompClient: StompClient = Stomp.over(
-                    Stomp.ConnectionProvider.OKHTTP,
-                    "ws://192.168.2.174:9999/mywebsocket/websocket"
-                )
+                stomp.initial()
+//                val stompClient: StompClient = Stomp.over(
+//                    Stomp.ConnectionProvider.OKHTTP,
+//                    "ws://192.168.2.174:9999/mywebsocket/websocket"
+//                )
                 tvHeadLightTitle.text = item.name
                 btHeadLightSwitch.isChecked = item.state.equals("on")
                 if(item.state.equals("on")){
@@ -51,60 +49,41 @@ class HeadLightAdapter(
                 }else{
                     ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
                 }
-//                stompClient.topic("/device/${item.ip}")
+//                stompClient.connect()
+//                stompClient.lifecycle()
 //                    .subscribeOn(Schedulers.io())
 //                    .observeOn(Schedulers.computation())
 //                    .subscribe({
-//                        val arrayType = object : TypeToken<Configuration>() {}.type
-//                        val received: Configuration = Gson().fromJson(it.payload, arrayType)
-//                        if(received.state.equals("on")){
-//                            ivHeadLightCardView.setImageResource(R.drawable.lampv2on)
-//                            btHeadLightSwitch.isChecked = true
-//                        }else{
-//                            btHeadLightSwitch.isChecked = false
-//                            ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
+//                        when (it.type) {
+//                            LifecycleEvent.Type.OPENED -> {
+//                                // viewModel.receive(it.type.name)
+//                            }
+//                            LifecycleEvent.Type.ERROR -> {
+//                                //check(it.message.toString())
+//                                //  viewModel.receive(it.type.name)
+//                            }
+//                            LifecycleEvent.Type.CLOSED -> {
+//                                //   viewModel.receive(it.type.name)
+//                            }
 //                        }
-//                        //btHeadLightSwitch.isChecked = received.state.equals("on")
-//                        //Toast.makeText(context, it.payload.toString(), Toast.LENGTH_LONG).show()
-//
-//                    }, { t: Throwable? ->
-//
+//                    }, { t: Throwable ->
+//                        // viewModel.receive(t.toString())
 //                    })
-                stompClient.connect()
-                stompClient.lifecycle()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.computation())
-                    .subscribe({
-                        when (it.type) {
-                            LifecycleEvent.Type.OPENED -> {
-                                // viewModel.receive(it.type.name)
-                            }
-                            LifecycleEvent.Type.ERROR -> {
-                                //check(it.message.toString())
-                                //  viewModel.receive(it.type.name)
-                            }
-                            LifecycleEvent.Type.CLOSED -> {
-                                //   viewModel.receive(it.type.name)
-                            }
-                        }
-                    }, { t: Throwable ->
-                        // viewModel.receive(t.toString())
-                    })
                 btHeadLightSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
                     if (isChecked && (btHeadLightSwitch.isPressed || headerHeadLight.isPressed)) {
                         ivHeadLightCardView.setImageResource(R.drawable.lampv2on)
-                        stompClient.send("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/on")
-                            .unsubscribeOn(Schedulers.newThread())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe()
+                        stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/on")
+//                            .unsubscribeOn(Schedulers.newThread())
+//                            .subscribeOn(Schedulers.io())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe()
                     } else if (!isChecked && (btHeadLightSwitch.isPressed || headerHeadLight.isPressed)) {
                         ivHeadLightCardView.setImageResource(R.drawable.lampv2off)
-                        stompClient.send("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/off")
-                            .unsubscribeOn(Schedulers.newThread())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe()
+                        stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/off")
+//                            .unsubscribeOn(Schedulers.newThread())
+//                            .subscribeOn(Schedulers.io())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe()
                     }
 
                 }

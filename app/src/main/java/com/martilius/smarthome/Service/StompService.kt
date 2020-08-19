@@ -28,6 +28,8 @@ class StompService {
             .unsubscribeOn(Schedulers.newThread())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+            .subscribe({},{t:Throwable->
+
+            })
     }
 }

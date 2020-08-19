@@ -111,6 +111,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 .putBoolean("logged",false)
                 .apply()
             PawelsRoomFragment().resetSubscription()
+            title = null
             findNavController(R.id.nav_host_fragment).navigate(R.id.action_nav_pawels_room_to_nav_login)
         }
 
@@ -313,9 +314,16 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                     logOutBt.visibility = View.GONE
                     toggle.isDrawerIndicatorEnabled = false
                     drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                    toggle.setToolbarNavigationClickListener { onBackPressed() }
+                    toggle.setToolbarNavigationClickListener {
+                        if(internetConnection){
+                            onBackPressed()
+                        }else{
+                            Toast.makeText(applicationContext, "No internet connection", Toast.LENGTH_SHORT).show()}
+                    }
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
-                    title = fragmentTitle.text.toString()
+                    if(!fragmentTitle.text.equals("Settings")){
+                        title = fragmentTitle.text.toString()
+                    }
                     fragmentTitle.text = "Settings"
                     fabAddDevice.visibility = View.GONE
                 }
@@ -404,7 +412,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
             } else if (item.title.equals("Settings")) {
                 findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
-                nav_view.setCheckedItem(nav_view.menu.getItem(checkPosition(nav_view, "Settings")))
+                //nav_view.setCheckedItem(nav_view.menu.getItem(checkPosition(nav_view, "Settings")))
                 stompClient.disconnect()
             } else {
                 viewModel.changeTitle(item.title.toString())
