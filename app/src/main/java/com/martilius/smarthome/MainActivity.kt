@@ -37,6 +37,7 @@ import com.google.gson.reflect.TypeToken
 import com.martilius.smarthome.Service.CustomAdapter
 import com.martilius.smarthome.adapters.NewDeviceAdapter
 import com.martilius.smarthome.models.*
+import com.martilius.smarthome.ui.fragments.PawelsRoomFragment
 import com.martilius.smarthome.ui.fragments.SettingsFragment
 import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.disposables.CompositeDisposable
@@ -109,6 +110,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 .putBoolean("admin", false)
                 .putBoolean("logged",false)
                 .apply()
+            PawelsRoomFragment().resetSubscription()
             findNavController(R.id.nav_host_fragment).navigate(R.id.action_nav_pawels_room_to_nav_login)
         }
 
@@ -320,7 +322,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 else -> {
                     supportActionBar?.show()
                     fabAddDevice.visibility = View.VISIBLE
-                    toolbar.menu.findItem(R.id.action_settings).isVisible = false
+                    //toolbar.menu.findItem(R.id.action_settings).isVisible = false
                 }
             }
         }
@@ -452,6 +454,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             }
 
             override fun onLosing(network: Network, maxMsToLive: Int) {
+                Toast.makeText(context, "losing", Toast.LENGTH_SHORT).show()
             }
         }
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)

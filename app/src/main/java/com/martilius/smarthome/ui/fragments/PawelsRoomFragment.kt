@@ -151,7 +151,7 @@ class PawelsRoomFragment : DaggerFragment() {
         compositeDisposable?.add(disposable)
     }
 
-    private fun resetSubscription(){
+    public fun resetSubscription(){
         compositeDisposable?.dispose()
         compositeDisposable = CompositeDisposable()
     }

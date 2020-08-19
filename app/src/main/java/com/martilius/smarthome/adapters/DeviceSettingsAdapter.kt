@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.blue
@@ -69,8 +70,9 @@ class DeviceSettingsAdapter(
                     roomsList.add(it.roomName)
                 }
                 val roomsAdapter = ArrayAdapter<String>(this.context, R.layout.dropdown_menu_item, roomsList)
-                deviceSettingsRoomAutoComplete.setAdapter(roomsAdapter)
                 deviceSettingsRoomAutoComplete.setText(item.room)
+                deviceSettingsRoomAutoComplete.setAdapter(roomsAdapter)
+
 //                stompClient.connect()
                     deviceSettingsItemTitle.text = item.name
 
@@ -78,6 +80,11 @@ class DeviceSettingsAdapter(
                 deviceSettingsDeleteButton.setOnClickListener {
                     stomp.sendMessage("/device/deleteDevice/${item.ip}")
                 }
+
+                deviceSettingsRoomAutoComplete.setOnItemClickListener { adapterView, view, i, l ->
+                    Toast.makeText(context, deviceSettingsRoomAutoComplete.text.toString(), Toast.LENGTH_SHORT).show()
+                }
+
 
 //                roomSettingsAdminToggleButton.addOnButtonCheckedListener { group, checkedId, isChecked ->
 //                        if(isChecked&& roomSettingsAdminButton.isPressed){

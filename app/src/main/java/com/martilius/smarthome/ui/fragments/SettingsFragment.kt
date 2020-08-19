@@ -134,6 +134,7 @@ class SettingsFragment : DaggerFragment() {
                         TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
                         roomSettingsAdapter.submitList(it)
                         roomsList = it
+
                     })
                     usersRespond.observe(viewLifecycleOwner, Observer {
                         TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
@@ -159,6 +160,17 @@ class SettingsFragment : DaggerFragment() {
                     roomCountChanged.observe(viewLifecycleOwner, Observer {
                         TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
                         roomSettingsAdapter.submitList(it)
+                        roomsList = it
+                        if(!deviceSettingsAdapter.currentList.isNullOrEmpty()){
+                            val list = deviceSettingsAdapter.currentList
+                            val newList = mutableListOf<DeviceSettings>()
+                            list.forEach {deviceSettings->
+                                newList.add(DeviceSettings(deviceSettings.id,deviceSettings.name,deviceSettings.ip,deviceSettings.room,roomsList))
+                                //deviceSettings.roomsList = roomsList
+                            }
+                            TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
+                            deviceSettingsAdapter.submitList(newList)
+                        }
                     })
                 }
             }else{
