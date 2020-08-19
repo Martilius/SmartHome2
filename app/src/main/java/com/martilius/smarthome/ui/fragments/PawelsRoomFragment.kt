@@ -85,11 +85,14 @@ class PawelsRoomFragment : DaggerFragment() {
         return inflater.inflate(R.layout.pawels_room_fragment, container, false).apply {
             enterTransition = MaterialFadeThrough().setDuration(500L)
             exitTransition = MaterialFadeThrough().setDuration(500L)
-            val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE)
-
+            val sharedPreferences = activity?.getSharedPreferences("userInfo",Context.MODE_PRIVATE)
+            rvLedLight.itemAnimator = null
+            rvOnOffLight.itemAnimator = null
+            rvHeadLight.itemAnimator = null
             rvLedLight.adapter = ledAdapter
             rvHeadLight.adapter = headLightAdapter
             rvOnOffLight.adapter = onOffAdapter
+
             with(viewModel) {
                 configLedRGB.observe(viewLifecycleOwner, Observer {
                     ledAdapter.submitList(it)

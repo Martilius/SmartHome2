@@ -24,14 +24,15 @@ import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
 import javax.inject.Inject
 
-class SettingsViewModel @Inject constructor(sharedPreferences: SharedPreferences,repository: Repository):ViewModel(){
+class SettingsViewModel @Inject constructor(sharedPreferences: SharedPreferences,val repository: Repository):ViewModel(){
 
     val roomsRespond = MutableLiveData<List<Rooms>>()
     val usersRespond = MutableLiveData<List<UserSettingsRespond>>()
     val usersListChanged = MutableLiveData<List<UserSettingsRespond>>()
     val devicesListChanged = MutableLiveData<List<Configuration>>()
     val devicesRespond = MutableLiveData<MutableList<DeviceSettings>>()
-    init{
+
+    fun adminInit(){
         viewModelScope.launch {
             val findRoomResponse = repository.findRooms()
             if(!findRoomResponse.isNullOrEmpty()){
@@ -51,6 +52,7 @@ class SettingsViewModel @Inject constructor(sharedPreferences: SharedPreferences
             devicesRespond.postValue(deviceSettings)
         }
     }
+
 
     fun checkIfDevicesAreTheSame(currentList:List<DeviceSettings>,newList:List<Configuration>){
         val currListString : MutableList<String> = mutableListOf()
@@ -154,7 +156,6 @@ class SettingsViewModel @Inject constructor(sharedPreferences: SharedPreferences
                                 stompClient.connect()
                                 connectivityManager.unregisterNetworkCallback(this)
                             }
-
                         }
 
 

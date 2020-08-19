@@ -49,6 +49,7 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
     val checkResponse = MutableLiveData<String>()
     val menuListNull = MutableLiveData<Boolean>()
     val deviceIp = MutableLiveData<String>()
+    val initDone = MutableLiveData<Boolean>()
 
 
     fun init() {
@@ -64,6 +65,10 @@ class MainViewModel @Inject constructor(sharedPreferences: SharedPreferences, pr
                 deviceTypeResponse.postValue(findDeviceTypeRespond)
             }
         }
+    }
+
+    fun initDone(){
+        initDone.postValue(true)
     }
 
 

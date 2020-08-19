@@ -29,13 +29,6 @@ class OnOffAdapter(
     val stomp = StompService()
 
     inner class SaloonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        //val button: ToggleButton = itemView.findViewById(R.id.toggleButtonItemOnOff)
-//        val retrofit = Retrofit.Builder()
-//            .baseUrl("http://192.168.2.174:8080/")
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .client(OkHttpClient())
-//            .build()
-//            .create(ConfigurationService::class.java)
 
         fun bind(item: Configuration, listener: (Configuration) -> Unit) {
             itemView.apply {
@@ -63,9 +56,7 @@ class OnOffAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         SaloonViewHolder(LayoutInflater.from(parent.context).inflate(
             R.layout.item_on_off, parent, false
-        ).apply {
-
-        }
+        )
 
         )
 

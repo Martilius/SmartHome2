@@ -3,6 +3,7 @@ package com.martilius.smarthome
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -71,6 +72,9 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         "ws://192.168.2.174:9999/mywebsocket/websocket"
     )
 
+    companion object {
+        var internetConnection = false
+    }
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,14 +95,21 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         lateinit var deviceTypes: List<DeviceType>
 
         viewModel.connection(stompClient, navView, applicationContext)
-        toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_settings -> {
-                    findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
-                    true
-                }
-                else -> false
-            }
+//        toolbar.setOnMenuItemClickListener {
+//            when (it.itemId) {
+//                R.id.action_settings -> {
+//                    findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
+        logOutBt.setOnClickListener {
+            sharedPreference.edit()
+                .putBoolean("admin", false)
+                .putBoolean("logged",false)
+                .apply()
+            findNavController(R.id.nav_host_fragment).navigate(R.id.action_nav_pawels_room_to_nav_login)
         }
 
 
@@ -126,22 +137,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setCancelable(true)
             dialog.setContentView(dialogView)
-            val devicesList : MutableList<String> = mutableListOf()
-//            stompClient.topic("/device/newDevice")
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.computation())
-//                .subscribe({
-//                    if(devicesList.contains(it.payload.toString())){
-//
-//                    }else{
-//                        devicesList.add(it.payload.toString())
-//                        newDeviceAdapter.submitList(devicesList)
-//                    }
-//
-//
-//                }, { t: Throwable? ->
-//
-//                })
+
             with(viewModel){
                 deviceIp.observe(this@MainActivity, Observer {
                     if(!newDeviceAdapter.currentList.contains(it.toString())&& !newDeviceAdapter.currentList.isNullOrEmpty()){
@@ -190,12 +186,6 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 dialogView.textInputDeviceTypeMenuLayout.error = null
             }
 
-//            newDeviceAdapter.submitList(
-//                listOf(
-//                    NewDevice(id = 1, ip = "192.168.1.1"),
-//                    NewDevice(id = 2, ip = "192.168.2.2")
-//                )
-//            )
         }
 
         with(viewModel) {
@@ -271,6 +261,8 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
         }
         navView.setupWithNavController(navController)
         navController.setGraph(R.navigation.mobile_navigation)
+        connectivityChecker(applicationContext)
+        viewModel.initDone()
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
 
@@ -289,6 +281,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 }
                 R.id.nav_pawels_room -> {
                     supportActionBar?.show()
+                    logOutBt.visibility = View.VISIBLE
                     fabAddDevice.visibility = View.VISIBLE
                     changePrimaryColor(R.color.brown, R.color.brownDarker)
                     //toolbar.menu.findItem(R.id.action_settings).isVisible = true
@@ -315,6 +308,7 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
                 }
                 R.id.nav_settings->{
                     //supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                    logOutBt.visibility = View.GONE
                     toggle.isDrawerIndicatorEnabled = false
                     drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                     toggle.setToolbarNavigationClickListener { onBackPressed() }
@@ -360,58 +354,68 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        if (item.title.equals("add")) {
-            val dialogView = LayoutInflater.from(this).inflate(R.layout.room_adding_dialog, null)
-            val dialog = Dialog(this)
-            dialog.setTitle("Add room")
-            dialog.setCancelable(true)
-            dialog.setContentView(dialogView)
-            dialog.show()
+        if(internetConnection) {
+            if (item.title.equals("add")) {
+                val dialogView =
+                    LayoutInflater.from(this).inflate(R.layout.room_adding_dialog, null)
+                val dialog = Dialog(this)
+                dialog.setTitle("Add room")
+                dialog.setCancelable(true)
+                dialog.setContentView(dialogView)
+                dialog.show()
 
-            val adapter: ArrayList<RoomTypes> = ArrayList()
+                val adapter: ArrayList<RoomTypes> = ArrayList()
 
-            adapter.add(RoomTypes.LIVING_ROOM)
-            adapter.add(RoomTypes.BATHROOM)
-            adapter.add(RoomTypes.BEDROOM)
-            adapter.add(RoomTypes.GARAGE)
-            adapter.add(RoomTypes.KITCHEN)
-            adapter.add(RoomTypes.LIBRARY)
+                adapter.add(RoomTypes.LIVING_ROOM)
+                adapter.add(RoomTypes.BATHROOM)
+                adapter.add(RoomTypes.BEDROOM)
+                adapter.add(RoomTypes.GARAGE)
+                adapter.add(RoomTypes.KITCHEN)
+                adapter.add(RoomTypes.LIBRARY)
 
-            val adapterDone =
-                CustomAdapter(applicationContext, R.layout.dropdown_menu_drawable, adapter)
-            // dialogView.addRoomAutoCompleteTextView.setAdapter(adapterDone)
-            dialogView.spinner.adapter = adapterDone
-            dialogView.btAddRoom.setOnClickListener {
-                if (dialogView.etRoomName.text.isNullOrEmpty()) {
-                    dialogView.roomNameTextField.error = "cant be empty"
-                } else {
-                    viewModel.sendViaWebSocket(
-                        stompClient,
-                        RoomModelRespond(
-                            dialogView.etRoomName.text.toString(),
+                val adapterDone =
+                    CustomAdapter(applicationContext, R.layout.dropdown_menu_drawable, adapter)
+                // dialogView.addRoomAutoCompleteTextView.setAdapter(adapterDone)
+                dialogView.spinner.adapter = adapterDone
+                dialogView.btAddRoom.setOnClickListener {
+                    if (dialogView.etRoomName.text.isNullOrEmpty()) {
+                        dialogView.roomNameTextField.error = "cant be empty"
+                    } else {
+                        viewModel.sendViaWebSocket(
+                            stompClient,
+                            RoomModelRespond(
+                                dialogView.etRoomName.text.toString(),
+                                adapterDone.getItem(dialogView.spinner.selectedItemPosition)
+                                    .toString()
+                            )
+                        )
+                        println(
                             adapterDone.getItem(dialogView.spinner.selectedItemPosition).toString()
                         )
-                    )
-                    println(adapterDone.getItem(dialogView.spinner.selectedItemPosition).toString())
-                    dialog.dismiss()
+                        dialog.dismiss()
+                    }
                 }
-            }
-            dialogView.etRoomName.addTextChangedListener {
-                dialogView.roomNameTextField.error = null
-            }
-            dialogView.btAddRoomCancel.setOnClickListener { dialog.dismiss() }
+                dialogView.etRoomName.addTextChangedListener {
+                    dialogView.roomNameTextField.error = null
+                }
+                dialogView.btAddRoomCancel.setOnClickListener { dialog.dismiss() }
 
-        }else if(item.title.equals("Settings")){
-            findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
-            nav_view.setCheckedItem(nav_view.menu.getItem(checkPosition(nav_view,"Settings")))
-            stompClient.disconnect()
-        } else {
-            viewModel.changeTitle(item.title.toString())
-            fragmentTitle.text = item.title
-            drawer_layout.close()
-            TransitionManager.beginDelayedTransition(drawer_layout, AutoTransition())
-           // Toast.makeText(applicationContext,nav_view.checkedItem?.title.toString(),Toast.LENGTH_LONG).show()
+            } else if (item.title.equals("Settings")) {
+                findNavController(R.id.nav_host_fragment).navigate(R.id.nav_settings)
+                nav_view.setCheckedItem(nav_view.menu.getItem(checkPosition(nav_view, "Settings")))
+                stompClient.disconnect()
+            } else {
+                viewModel.changeTitle(item.title.toString())
+                fragmentTitle.text = item.title
+                drawer_layout.close()
+                TransitionManager.beginDelayedTransition(drawer_layout, AutoTransition())
+                // Toast.makeText(applicationContext,nav_view.checkedItem?.title.toString(),Toast.LENGTH_LONG).show()
 
+            }
+        }else{
+            //nav_view.setCheckedItem(nav_view.menu.getItem(checkPosition(nav_view,fragmentTitle.text.toString())))
+            Toast.makeText(applicationContext, "No internet Connection", Toast.LENGTH_SHORT).show()
+            return false
         }
 
         return true
@@ -427,6 +431,30 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
             }
         }
         return -1
+    }
+
+    fun connectivityChecker(context: Context){
+        val connectivityManager =
+            context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkRequest = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+        var networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                MainActivity.Companion.internetConnection = true
+            }
+
+            override fun onUnavailable() {
+            }
+
+            override fun onLost(network: Network) {
+                MainActivity.Companion.internetConnection = false
+            }
+
+            override fun onLosing(network: Network, maxMsToLive: Int) {
+            }
+        }
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
     }
 
 

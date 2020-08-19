@@ -8,39 +8,15 @@ import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ToggleButton
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
-import androidx.lifecycle.observe
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.martilius.smarthome.MainActivity
 import com.martilius.smarthome.R
 import com.martilius.smarthome.Service.StompService
-import com.martilius.smarthome.Tasks.ColorPickDialog
-import com.martilius.smarthome.Tasks.UdpServices
-import com.martilius.smarthome.di.modules.RepositoryModule_ProvideRepositoryFactory
 import com.martilius.smarthome.models.Configuration
-import com.martilius.smarthome.models.Cupboard
-import com.martilius.smarthome.repository.Repository
-import com.martilius.smarthome.repository.remote.ConfigurationService
-import com.martilius.smarthome.repository.remote.UserService
-import dagger.android.support.DaggerAppCompatActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.item_led_rgb.view.*
-import kotlinx.android.synthetic.main.item_on_off.view.*
-import kotlinx.coroutines.*
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import ua.naiksoftware.stomp.Stomp
-import ua.naiksoftware.stomp.StompClient
-import java.lang.Exception
-import javax.inject.Inject
 
 class LedAdapter(
     private val listener: (Configuration) -> Unit
@@ -60,31 +36,18 @@ class LedAdapter(
 //                stompClient.connect()
                 tvLedRGBTitle.text = item.name
                 btAdditionalLightSwitch.isChecked = item.state.equals("on")
-                additionalLightCustomButton.backgroundTintList =
-                    ColorStateList.valueOf(Color.rgb(item.red, item.green, item.blue))
-                ivAdditionalLightCardView.setBackgroundColor(
-                    Color.rgb(
-                        item.red,
-                        item.green,
-                        item.blue
-                    )
-                )
+
                 btAdditionalLightSwitch.setOnCheckedChangeListener { compoundButton, isChecked ->
-                    if (isChecked && btAdditionalLightSwitch.isPressed) {
-//                        stompClient.send("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/on")
-//                            .unsubscribeOn(Schedulers.newThread())
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribe()
-                        stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/on")
-                    } else if (!isChecked && btAdditionalLightSwitch.isPressed) {
-//                        stompClient.send("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/off")
-//                            .unsubscribeOn(Schedulers.newThread())
-//                            .subscribeOn(Schedulers.io())
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribe()
-                        stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/off")
+                    if (MainActivity.internetConnection) {
+                        if (isChecked && btAdditionalLightSwitch.isPressed) {
+                            stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/on")
+                        } else if (!isChecked && btAdditionalLightSwitch.isPressed) {
+                            stomp.sendMessage("/device/${item.ip}/${item.red}/${item.green}/${item.blue}/off")
+                        }
+                    } else {
+                        Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
                     }
+
 
                 }
 
@@ -134,55 +97,45 @@ class LedAdapter(
         holder.bind(getItem(position), listener)
 
         val item = getItem(position)
-        lateinit var state :String
-        if(holder.itemView.btAdditionalLightSwitch.isChecked){
-            state="on"
-        }else{
-            state="off"
+        lateinit var state: String
+        if (holder.itemView.btAdditionalLightSwitch.isChecked) {
+            state = "on"
+        } else {
+            state = "off"
         }
         holder.itemView.additionalLightWhiteButton.setOnClickListener {
-//            stompClient.send("/device/${item.ip}/255/255/255/${state}")
-//                .unsubscribeOn(Schedulers.newThread())
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe()
             stomp.sendMessage("/device/${item.ip}/255/255/255/${state}")
             holder.itemView.ivAdditionalLightCardView.setBackgroundColor(Color.WHITE)
         }
 
         holder.itemView.additionalLightRedButton.setOnClickListener {
-//            stompClient.send("/device/${item.ip}/255/0/0/${state}")
-//                .unsubscribeOn(Schedulers.newThread())
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe()
             stomp.sendMessage("/device/${item.ip}/255/0/0/${state}")
             holder.itemView.ivAdditionalLightCardView.setBackgroundColor(Color.WHITE)
         }
 
         holder.itemView.additionalLightGreenButton.setOnClickListener {
-//            stompClient.send("/device/${item.ip}/0/255/0/${state}")
-//                .unsubscribeOn(Schedulers.newThread())
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe()
             stomp.sendMessage("/device/${item.ip}/0/255/0/${state}")
             holder.itemView.ivAdditionalLightCardView.setBackgroundColor(Color.GREEN)
         }
 
         holder.itemView.additionalLightBlueButton.setOnClickListener {
-//            stompClient.send("/device/${item.ip}/0/0/255/${state}")
-//                .unsubscribeOn(Schedulers.newThread())
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe()
             stomp.sendMessage("/device/${item.ip}/0/0/255/${state}")
             holder.itemView.ivAdditionalLightCardView.setBackgroundColor(Color.BLUE)
         }
 
         holder.itemView.btPickCustomColor.setOnClickListener {
-           // ColorPickDialog().showDialog(context,sharedPreferences,sendingAlIDN,additionalLightCustomButton, ivAdditionalLightCardView)
+            // ColorPickDialog().showDialog(context,sharedPreferences,sendingAlIDN,additionalLightCustomButton, ivAdditionalLightCardView)
         }
+
+        holder.itemView.additionalLightCustomButton.backgroundTintList =
+            ColorStateList.valueOf(Color.rgb(item.red, item.green, item.blue))
+        holder.itemView.ivAdditionalLightCardView.setBackgroundColor(
+            Color.rgb(
+                item.red,
+                item.green,
+                item.blue
+            )
+        )
 
     }
 
@@ -190,7 +143,7 @@ class LedAdapter(
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Configuration>() {
             override fun areItemsTheSame(oldItem: Configuration, newItem: Configuration) =
-                oldItem.name == newItem.name
+                oldItem.id == newItem.id
 
             @SuppressLint("DiffUtilEquals")
             override fun areContentsTheSame(oldItem: Configuration, newItem: Configuration) =

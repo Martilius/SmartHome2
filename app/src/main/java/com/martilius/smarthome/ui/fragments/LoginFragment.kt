@@ -34,9 +34,12 @@ class LoginFragment : DaggerFragment() {
             enterTransition = MaterialFadeThrough().setDuration(500L)
             exitTransition = MaterialFadeThrough().setDuration(500L)
             val sharedPreferences = activity?.getSharedPreferences("userInfo",Context.MODE_PRIVATE)
+            if(!sharedPreferences?.getString("login","").equals("")){
+                etLogin.setText(sharedPreferences?.getString("login",""))
+            }
             btLogin.setOnClickListener {
                 if(!etLogin.text.isNullOrEmpty() && !etPassword.text.isNullOrEmpty()){
-                    viewModel.login(etLogin.text.toString(), etPassword.text.toString())
+                    viewModel.login(etLogin.text.toString(), etPassword.text.toString(), context)
                 }else if(etLogin.text.isNullOrEmpty() && !etPassword.text.isNullOrEmpty()){
                     loginTextField.error = "Login cannot be empty"
                 }else if(!etLogin.text.isNullOrEmpty() && etPassword.text.isNullOrEmpty()){
@@ -53,7 +56,7 @@ class LoginFragment : DaggerFragment() {
 
             btRegister.setOnClickListener {
                 if(!etLogin.text.isNullOrEmpty() && !etPassword.text.isNullOrEmpty()){
-                    viewModel.register(etLogin.text.toString(), etPassword.text.toString())
+                    viewModel.register(etLogin.text.toString(), etPassword.text.toString(), context)
                 }else if(etLogin.text.isNullOrEmpty() && !etPassword.text.isNullOrEmpty()){
                     loginTextField.error = "Login cannot be empty"
                 }else if(!etLogin.text.isNullOrEmpty() && etPassword.text.isNullOrEmpty()){
@@ -69,10 +72,6 @@ class LoginFragment : DaggerFragment() {
             }
             etPassword.addTextChangedListener {
                 passwordTextField.error = null
-            }
-
-            skip.setOnClickListener {
-                findNavController().navigate(R.id.action_loginFragment_to_nav_home)
             }
 
             val mainViewModel =

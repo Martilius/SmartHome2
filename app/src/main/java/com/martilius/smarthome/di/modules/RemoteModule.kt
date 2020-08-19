@@ -39,7 +39,8 @@ class RemoteModule {
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor =
             HttpLoggingInterceptor()
-                    .setLevel(if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE)
+                    .setLevel(if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE).apply {
+                }
 
     @Provides
     @Singleton

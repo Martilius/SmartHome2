@@ -1,6 +1,7 @@
 package com.martilius.smarthome.ui.fragments
 
 import android.bluetooth.BluetoothClass
+import android.content.Context
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.TransitionManager
@@ -63,98 +64,107 @@ class SettingsFragment : DaggerFragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.settings_fragment, container, false).apply {
+            val sharedPreferences = activity?.getSharedPreferences("userInfo", Context.MODE_PRIVATE)
             rvRoomSettings.adapter = roomSettingsAdapter
             rvUsersSettings.adapter = userSettingsAdapter
             rvDeviceSettings.adapter = deviceSettingsAdapter
             viewModel.connection(stompClient,"/user/changeUser/change","/room/roomCountChanged",context)
             //viewModel.connection(stompClient,roomSettingsAdapter.currentList,context)
             val thisView = this
-            roomSettingsHeader.setOnClickListener {
-                roomSettingsExpander.isChecked = !roomSettingsExpander.isChecked
-            }
-            roomSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
-                if(isChecked){
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    roomSettingsExpandedLayout.visibility = View.VISIBLE
-                }else{
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    roomSettingsExpandedLayout.visibility = View.GONE
+
+            if(sharedPreferences?.getBoolean("admin",false)!!){
+                viewModel.adminInit()
+                adminMaterialCard.visibility = View.VISIBLE
+                roomSettingsHeader.setOnClickListener {
+                    roomSettingsExpander.isChecked = !roomSettingsExpander.isChecked
                 }
-            }
-
-            deviceSettingsHeader.setOnClickListener {
-                deviceSettingsExpander.isChecked = !deviceSettingsExpander.isChecked
-            }
-            deviceSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
-                if(isChecked){
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    deviceSettingsExpandedLayout.visibility = View.VISIBLE
-                }else{
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    deviceSettingsExpandedLayout.visibility = View.GONE
-                }
-            }
-
-            usersSettingsHeader.setOnClickListener {
-                usersSettingsExpander.isChecked = !usersSettingsExpander.isChecked
-            }
-            usersSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
-                if(isChecked){
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    usersSettingsExpandedLayout.visibility = View.VISIBLE
-                }else{
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    usersSettingsExpandedLayout.visibility = View.GONE
-                }
-            }
-
-            adminSettingsHeader.setOnClickListener {
-                adminSettingsExpander.isChecked = !adminSettingsExpander.isChecked
-            }
-            adminSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
-                if(isChecked){
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    adminSettingsExpandedLayout.visibility = View.VISIBLE
-                }else{
-                    TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
-                    adminSettingsExpandedLayout.visibility = View.GONE
-                }
-            }
-
-
-
-            with(viewModel){
-                roomsRespond.observe(viewLifecycleOwner, Observer {
-                    TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
-                    roomSettingsAdapter.submitList(it)
-                    roomsList = it
-                })
-                usersRespond.observe(viewLifecycleOwner, Observer {
-                    TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
-                    userSettingsAdapter.submitList(it)
-                })
-                usersListChanged.observe(viewLifecycleOwner, Observer {
-                    viewModel.postUsers(it,userSettingsAdapter.currentList)
-                })
-                devicesRespond.observe(viewLifecycleOwner, Observer {
-                    it.forEach {
-                        it.roomsList = roomsList
+                roomSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
+                    if(isChecked){
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        roomSettingsExpandedLayout.visibility = View.VISIBLE
+                    }else{
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        roomSettingsExpandedLayout.visibility = View.GONE
                     }
-                    TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
-                    deviceSettingsAdapter.submitList(it)
-                })
-                devicesListChanged.observe(viewLifecycleOwner, Observer {
-                    checkIfDevicesAreTheSame(deviceSettingsAdapter.currentList,it)
-                })
+                }
+
+                deviceSettingsHeader.setOnClickListener {
+                    deviceSettingsExpander.isChecked = !deviceSettingsExpander.isChecked
+                }
+                deviceSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
+                    if(isChecked){
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        deviceSettingsExpandedLayout.visibility = View.VISIBLE
+                    }else{
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        deviceSettingsExpandedLayout.visibility = View.GONE
+                    }
+                }
+
+                usersSettingsHeader.setOnClickListener {
+                    usersSettingsExpander.isChecked = !usersSettingsExpander.isChecked
+                }
+                usersSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
+                    if(isChecked){
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        usersSettingsExpandedLayout.visibility = View.VISIBLE
+                    }else{
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        usersSettingsExpandedLayout.visibility = View.GONE
+                    }
+                }
+
+                adminSettingsHeader.setOnClickListener {
+                    adminSettingsExpander.isChecked = !adminSettingsExpander.isChecked
+                }
+                adminSettingsExpander.setOnCheckedChangeListener { compoundButton, isChecked ->
+                    if(isChecked){
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        adminSettingsExpandedLayout.visibility = View.VISIBLE
+                    }else{
+                        TransitionManager.beginDelayedTransition(this as ViewGroup?, AutoTransition())
+                        adminSettingsExpandedLayout.visibility = View.GONE
+                    }
+                }
+
+
+
+                with(viewModel){
+                    roomsRespond.observe(viewLifecycleOwner, Observer {
+                        TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
+                        roomSettingsAdapter.submitList(it)
+                        roomsList = it
+                    })
+                    usersRespond.observe(viewLifecycleOwner, Observer {
+                        TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
+                        userSettingsAdapter.submitList(it)
+                    })
+                    usersListChanged.observe(viewLifecycleOwner, Observer {
+                        viewModel.postUsers(it,userSettingsAdapter.currentList)
+                    })
+                    devicesRespond.observe(viewLifecycleOwner, Observer {
+                        it.forEach {
+                            it.roomsList = roomsList
+                        }
+                        TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
+                        deviceSettingsAdapter.submitList(it)
+                    })
+                    devicesListChanged.observe(viewLifecycleOwner, Observer {
+                        checkIfDevicesAreTheSame(deviceSettingsAdapter.currentList,it)
+                    })
+                }
+                val mainViewModel =
+                    activity?.let { ViewModelProvider(it).get(MainViewModel::class.java) }!!
+                with(mainViewModel){
+                    roomCountChanged.observe(viewLifecycleOwner, Observer {
+                        TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
+                        roomSettingsAdapter.submitList(it)
+                    })
+                }
+            }else{
+
             }
-            val mainViewModel =
-                activity?.let { ViewModelProvider(it).get(MainViewModel::class.java) }!!
-            with(mainViewModel){
-                roomCountChanged.observe(viewLifecycleOwner, Observer {
-                    TransitionManager.beginDelayedTransition(thisView as ViewGroup?, AutoTransition())
-                    roomSettingsAdapter.submitList(it)
-                })
-            }
+
 
         }
     }
